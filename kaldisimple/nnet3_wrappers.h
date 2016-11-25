@@ -46,7 +46,7 @@ namespace kaldi {
                        ) ;
         ~NNet3OnlineWrapper();
 
-        bool        decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames);
+        bool        decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
 
         std::string get_decoded_string(void);
         double      get_likelihood(void);

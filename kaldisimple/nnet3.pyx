@@ -31,7 +31,7 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
     cdef cppclass NNet3OnlineWrapper:
         NNet3OnlineWrapper() except +
         NNet3OnlineWrapper(float, int, int, float, float, string, string, string, string, string) except +
-        bint decode(float, int, float *) except +
+        bint decode(float, int, float *, bint) except +
         string get_decoded_string() except +
         float get_likelihood() except +
 
@@ -103,8 +103,14 @@ cdef class KaldiNNet3OnlineDecoder:
         self.ie_conf_f.close()
         del self.ks
 
-    def decode(self, samp_freq, np.ndarray[float, ndim=1, mode="c"] samples not None):
-        return self.ks.decode(samp_freq, samples.shape[0], <float *> samples.data)
+    def decode(self, samp_freq, np.ndarray[float, ndim=1, mode="c"] samples not None, finalize):
+        return self.ks.decode(samp_freq, samples.shape[0], <float *> samples.data, finalize)
+
+    def get_decoded_string(self):
+        return self.ks.get_decoded_string()
+
+    def get_likelihood(self):
+        return self.ks.get_likelihood()
 
     #
     # various convenience functions below
@@ -126,12 +132,5 @@ cdef class KaldiNNet3OnlineDecoder:
 
         wavf.close()
 
-        return self.decode(wavf.getframerate(), np.array(samples, dtype=np.float32))
-
-    def get_decoded_string(self):
-        return self.ks.get_decoded_string()
-
-    def get_likelihood(self):
-        return self.ks.get_likelihood()
-
+        return self.decode(wavf.getframerate(), np.array(samples, dtype=np.float32), True)
 

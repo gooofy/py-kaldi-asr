@@ -136,7 +136,7 @@ namespace kaldi {
         return this->likelihood;
     }
 
-    bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames) {
+    bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize) {
 
         using fst::VectorFst;
 
@@ -147,8 +147,10 @@ namespace kaldi {
 
         feature_pipeline->AcceptWaveform(samp_freq, wave_part);
 
-        // no more input. flush out last frames
-        feature_pipeline->InputFinished();
+        if (finalize) {
+            // no more input. flush out last frames
+            feature_pipeline->InputFinished();
+        }
       
         if (silence_weighting->Active()) {
           silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
@@ -159,38 +161,40 @@ namespace kaldi {
         
         decoder->AdvanceDecoding();
 
-        decoder->FinalizeDecoding();
+        if (finalize) {
+            decoder->FinalizeDecoding();
 
-        CompactLattice clat;
-        bool end_of_utterance = true;
-        decoder->GetLattice(end_of_utterance, &clat);
+            CompactLattice clat;
+            bool end_of_utterance = true;
+            decoder->GetLattice(end_of_utterance, &clat);
 
-        // GetDiagnosticsAndPrintOutput(utt, word_syms, clat, &num_frames, &tot_like);
+            // GetDiagnosticsAndPrintOutput(utt, word_syms, clat, &num_frames, &tot_like);
 
-        if (clat.NumStates() == 0) {
-          KALDI_WARN << "Empty lattice.";
-          return false;
-        }
+            if (clat.NumStates() == 0) {
+              KALDI_WARN << "Empty lattice.";
+              return false;
+            }
 
-        CompactLattice best_path_clat;
-        CompactLatticeShortestPath(clat, &best_path_clat);
-        
-        Lattice best_path_lat;
-        ConvertLattice(best_path_clat, &best_path_lat);
-        
-        LatticeWeight weight;
-        std::vector<int32> alignment;
-        std::vector<int32> words;
-        GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
-        likelihood = -(weight.Value1() + weight.Value2());
-                   
-        decoded_string = "";
+            CompactLattice best_path_clat;
+            CompactLatticeShortestPath(clat, &best_path_clat);
+            
+            Lattice best_path_lat;
+            ConvertLattice(best_path_clat, &best_path_lat);
+            
+            LatticeWeight weight;
+            std::vector<int32> alignment;
+            std::vector<int32> words;
+            GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
+            likelihood = -(weight.Value1() + weight.Value2());
+                       
+            decoded_string = "";
 
-        for (size_t i = 0; i < words.size(); i++) {
-            std::string s = word_syms->Find(words[i]);
-            if (s == "")
-                KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
-            decoded_string += s + ' ';
+            for (size_t i = 0; i < words.size(); i++) {
+                std::string s = word_syms->Find(words[i]);
+                if (s == "")
+                    KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
+                decoded_string += s + ' ';
+            }
         }
         
         return true;
