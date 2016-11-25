@@ -36,26 +36,32 @@ if __name__ == "__main__":
     MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
     # MODELS      = [ 'lstm_ld5', 'nnet_tdnn_a' ]
     MODELS      = [ 'nnet_tdnn_a' ]
-    WAVFILE     = 'data/single.wav'
+    WAVFILES    = [ 'data/single.wav', 'data/gsp1.wav']
 
     for model in MODELS:
 
+        print '%s loading model...' % model
+
         decoder = KaldiNNet3OnlineDecoder (MODELDIR, model)
+        print '%s loading model... done.' % model
         
-        time_start = time()
-        if decoder.decode_wav_file(WAVFILE):
-            print '%s decoding worked!' % model
+        for WAVFILE in WAVFILES:
 
-            s = decoder.get_decoded_string()
-            print
-            print "*****************************************************************"
-            print "**", s
-            print "** %s likelihood:" % model, decoder.get_likelihood()
-            print "*****************************************************************"
-            print
+            time_start = time()
+            if decoder.decode_wav_file(WAVFILE):
+                print '%s decoding worked!' % model
 
-        else:
-            print '%s decoding did not work :(' % model
+                s = decoder.get_decoded_string()
+                print
+                print "*****************************************************************"
+                print "**", WAVFILE
+                print "**", s
+                print "** %s likelihood:" % model, decoder.get_likelihood()
+                print "*****************************************************************"
+                print
 
-        print "%s decoding took %8.2fs" % (model, time() - time_start )
+            else:
+                print '%s decoding did not work :(' % model
+
+            print "%s decoding took %8.2fs" % (model, time() - time_start )
 

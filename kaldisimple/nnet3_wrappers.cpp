@@ -96,7 +96,49 @@ namespace kaldi {
             KALDI_ERR << "Could not read symbol table from file "
                        << word_syms_filename;
 
+        adaptation_state  = NULL;
+        feature_pipeline  = NULL;
+        silence_weighting = NULL;
+        decoder           = NULL;
+    }
+
+    void NNet3OnlineWrapper::free_decoder(void) {
+        if (decoder) {
+            delete decoder ;
+            decoder           = NULL;
+        }
+        if (silence_weighting) {
+            delete silence_weighting ;
+            silence_weighting = NULL;
+        }
+        if (feature_pipeline) {
+            delete feature_pipeline ; 
+            feature_pipeline  = NULL;
+        }
+        if (adaptation_state) {
+            delete adaptation_state ;
+            adaptation_state  = NULL;
+        }
+    }
+
+    NNet3OnlineWrapper::~NNet3OnlineWrapper() {
+        // FIXME: fix memleaks?
+        free_decoder();
+        delete feature_info;
+    }
+
+    std::string NNet3OnlineWrapper::get_decoded_string(void) {
+        return this->decoded_string;
+    }
+
+    double NNet3OnlineWrapper::get_likelihood(void) {
+        return this->likelihood;
+    }
+
+    void NNet3OnlineWrapper::start_decoding(void) {
         // setup decoder pipeline
+
+        free_decoder();
 
 #if VERBOSE
         KALDI_LOG << "beam:                 " << nnet3_decoding_config.decoder_opts.beam;
@@ -119,26 +161,13 @@ namespace kaldi {
                                                              feature_pipeline);
     }
 
-    NNet3OnlineWrapper::~NNet3OnlineWrapper() {
-        // FIXME: fix memleaks?
-        delete decoder ;
-        delete silence_weighting ;
-        delete feature_pipeline ; 
-        delete adaptation_state ;
-        delete feature_info;
-    }
-
-    std::string NNet3OnlineWrapper::get_decoded_string(void) {
-        return this->decoded_string;
-    }
-
-    double NNet3OnlineWrapper::get_likelihood(void) {
-        return this->likelihood;
-    }
-
     bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize) {
 
         using fst::VectorFst;
+
+        if (!decoder) {
+            start_decoding();
+        }
 
         Vector<BaseFloat> wave_part(num_frames, kUndefined);
         for (int i=0; i<num_frames; i++) {
@@ -195,6 +224,8 @@ namespace kaldi {
                     KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
                 decoded_string += s + ' ';
             }
+
+            free_decoder();
         }
         
         return true;

@@ -46,12 +46,15 @@ namespace kaldi {
                        ) ;
         ~NNet3OnlineWrapper();
 
+        void        start_decoding(void);
         bool        decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
 
         std::string get_decoded_string(void);
         double      get_likelihood(void);
 
     private:
+        void        free_decoder(void);
+
         fst::SymbolTable                   *word_syms;
 
         // feature_config includes configuration for the iVector adaptation,
