@@ -1,0 +1,11 @@
+# use glob syntax.
+syntax: glob
+*.swp
+*.swo
+*.pyc
+tmp
+old
+build
+*.log
+TODO
+*.so
