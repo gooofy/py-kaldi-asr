@@ -96,10 +96,36 @@ namespace kaldi {
             KALDI_ERR << "Could not read symbol table from file "
                        << word_syms_filename;
 
+        // setup decoder pipeline
+
+#if VERBOSE
+        KALDI_LOG << "beam:                 " << nnet3_decoding_config.decoder_opts.beam;
+        KALDI_LOG << "max_active:           " << nnet3_decoding_config.decoder_opts.max_active;
+        KALDI_LOG << "min_active:           " << nnet3_decoding_config.decoder_opts.min_active;
+        KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.decoder_opts.lattice_beam;
+        KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
+#endif
+
+        adaptation_state  = new OnlineIvectorExtractorAdaptationState (feature_info->ivector_extractor_info);
+        feature_pipeline  = new OnlineNnet2FeaturePipeline (*feature_info);
+        feature_pipeline->SetAdaptationState(*adaptation_state);
+
+        silence_weighting = new OnlineSilenceWeighting (trans_model, feature_info->silence_weighting_config);
+        
+        decoder           = new SingleUtteranceNnet3Decoder (nnet3_decoding_config,
+                                                             trans_model,
+                                                             am_nnet,
+                                                             *decode_fst,
+                                                             feature_pipeline);
     }
 
     NNet3OnlineWrapper::~NNet3OnlineWrapper() {
-        // FIXME: fix memleaks
+        // FIXME: fix memleaks?
+        delete decoder ;
+        delete silence_weighting ;
+        delete feature_pipeline ; 
+        delete adaptation_state ;
+        delete feature_info;
     }
 
     std::string NNet3OnlineWrapper::get_decoded_string(void) {
@@ -114,60 +140,32 @@ namespace kaldi {
 
         using fst::VectorFst;
 
-#if VERBOSE
-        KALDI_LOG << "decode(): DECODING STARTS...";
-
-        KALDI_LOG << "beam:                 " << nnet3_decoding_config.decoder_opts.beam;
-        KALDI_LOG << "max_active:           " << nnet3_decoding_config.decoder_opts.max_active;
-        KALDI_LOG << "min_active:           " << nnet3_decoding_config.decoder_opts.min_active;
-        KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.decoder_opts.lattice_beam;
-        KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
-#endif
-
-        OnlineIvectorExtractorAdaptationState adaptation_state(feature_info->ivector_extractor_info);
-
-        OnlineNnet2FeaturePipeline feature_pipeline(*feature_info);
-        feature_pipeline.SetAdaptationState(adaptation_state);
-
-        OnlineSilenceWeighting silence_weighting(
-            trans_model,
-            feature_info->silence_weighting_config);
-        
-        SingleUtteranceNnet3Decoder decoder(nnet3_decoding_config,
-                                            trans_model,
-                                            am_nnet,
-                                            *decode_fst,
-                                            &feature_pipeline);
-
-        std::vector<std::pair<int32, BaseFloat> > delta_weights;
-
         Vector<BaseFloat> wave_part(num_frames, kUndefined);
         for (int i=0; i<num_frames; i++) {
             wave_part(i) = frames[i];
         }
 
-        feature_pipeline.AcceptWaveform(samp_freq, wave_part);
+        feature_pipeline->AcceptWaveform(samp_freq, wave_part);
 
         // no more input. flush out last frames
-        feature_pipeline.InputFinished();
+        feature_pipeline->InputFinished();
       
-        if (silence_weighting.Active()) {
-          silence_weighting.ComputeCurrentTraceback(decoder.Decoder());
-          silence_weighting.GetDeltaWeights(feature_pipeline.NumFramesReady(),
+        if (silence_weighting->Active()) {
+          silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
+          silence_weighting->GetDeltaWeights(feature_pipeline->NumFramesReady(),
                                             &delta_weights);
-          feature_pipeline.UpdateFrameWeights(delta_weights);
+          feature_pipeline->UpdateFrameWeights(delta_weights);
         }
         
-        decoder.AdvanceDecoding();
+        decoder->AdvanceDecoding();
 
-        decoder.FinalizeDecoding();
+        decoder->FinalizeDecoding();
 
         CompactLattice clat;
         bool end_of_utterance = true;
-        decoder.GetLattice(end_of_utterance, &clat);
+        decoder->GetLattice(end_of_utterance, &clat);
 
-        // GetDiagnosticsAndPrintOutput(utt, word_syms, clat,
-        //                              &num_frames, &tot_like);
+        // GetDiagnosticsAndPrintOutput(utt, word_syms, clat, &num_frames, &tot_like);
 
         if (clat.NumStates() == 0) {
           KALDI_WARN << "Empty lattice.";

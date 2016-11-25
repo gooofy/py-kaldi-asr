@@ -56,17 +56,23 @@ namespace kaldi {
 
         // feature_config includes configuration for the iVector adaptation,
         // as well as the basic features.
-        OnlineNnet2FeaturePipelineConfig    feature_config;
-        OnlineNnet3DecodingConfig           nnet3_decoding_config;   
-        OnlineNnet2FeaturePipelineInfo     *feature_info;
+        OnlineNnet2FeaturePipelineConfig          feature_config;
+        OnlineNnet3DecodingConfig                 nnet3_decoding_config;   
+        OnlineNnet2FeaturePipelineInfo           *feature_info;
 
-        nnet3::AmNnetSimple                 am_nnet;
-        TransitionModel                     trans_model;
-        fst::VectorFst<fst::StdArc>        *decode_fst;
+        nnet3::AmNnetSimple                       am_nnet;
+        TransitionModel                           trans_model;
+        fst::VectorFst<fst::StdArc>              *decode_fst;
+        std::string                              *ie_conf_filename;
 
-        std::string                         decoded_string;
-        double                              likelihood;
-        std::string                        *ie_conf_filename;
+        OnlineIvectorExtractorAdaptationState    *adaptation_state;
+        OnlineNnet2FeaturePipeline               *feature_pipeline;
+        OnlineSilenceWeighting                   *silence_weighting;
+        SingleUtteranceNnet3Decoder              *decoder;
+        std::vector<std::pair<int32, BaseFloat> > delta_weights;
+
+        std::string                               decoded_string;
+        double                                    likelihood;
     };
 }
 
