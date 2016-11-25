@@ -32,7 +32,6 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
         NNet3OnlineWrapper() except +
         NNet3OnlineWrapper(float, int, int, float, float, string, string, string, string, string) except +
 
-        void start_decoding() except +
         bint decode(float, int, float *, bint) except +
 
         string get_decoded_string() except +

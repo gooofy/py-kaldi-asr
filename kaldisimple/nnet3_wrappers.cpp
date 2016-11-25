@@ -159,6 +159,7 @@ namespace kaldi {
                                                              am_nnet,
                                                              *decode_fst,
                                                              feature_pipeline);
+        tot_frames = 0;
     }
 
     bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize) {
@@ -173,6 +174,7 @@ namespace kaldi {
         for (int i=0; i<num_frames; i++) {
             wave_part(i) = frames[i];
         }
+        tot_frames += num_frames;
 
         feature_pipeline->AcceptWaveform(samp_freq, wave_part);
 
@@ -214,7 +216,7 @@ namespace kaldi {
             std::vector<int32> alignment;
             std::vector<int32> words;
             GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
-            likelihood = -(weight.Value1() + weight.Value2());
+            likelihood = -(weight.Value1() + weight.Value2()) / (double) tot_frames;
                        
             decoded_string = "";
 

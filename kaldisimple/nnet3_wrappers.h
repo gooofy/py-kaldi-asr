@@ -46,13 +46,13 @@ namespace kaldi {
                        ) ;
         ~NNet3OnlineWrapper();
 
-        void        start_decoding(void);
         bool        decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
 
         std::string get_decoded_string(void);
         double      get_likelihood(void);
 
     private:
+        void        start_decoding(void);
         void        free_decoder(void);
 
         fst::SymbolTable                   *word_syms;
@@ -73,6 +73,7 @@ namespace kaldi {
         OnlineSilenceWeighting                   *silence_weighting;
         SingleUtteranceNnet3Decoder              *decoder;
         std::vector<std::pair<int32, BaseFloat> > delta_weights;
+        int32                                     tot_frames;
 
         std::string                               decoded_string;
         double                                    likelihood;
