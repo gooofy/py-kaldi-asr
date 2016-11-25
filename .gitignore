@@ -6,6 +6,7 @@ syntax: glob
 tmp
 old
 build
+data/models
 *.log
 TODO
 *.so
