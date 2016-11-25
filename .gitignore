@@ -10,3 +10,4 @@ data/models
 *.log
 TODO
 *.so
+kaldisimple/nnet3.cpp
