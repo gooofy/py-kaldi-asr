@@ -37,6 +37,8 @@
 #include "online2/online-endpoint.h"
 #endif
 
+#define VERBOSE 0
+
 namespace kaldi {
 
     NNet3OnlineWrapper::NNet3OnlineWrapper(BaseFloat    beam,                       
@@ -58,11 +60,12 @@ namespace kaldi {
         typedef kaldi::int32 int32;
         typedef kaldi::int64 int64;
     
-
+#if VERBOSE
         KALDI_LOG << "model_in_filename:         " << model_in_filename;
         KALDI_LOG << "fst_in_str:                " << fst_in_str;
         KALDI_LOG << "mfcc_config:               " << mfcc_config;
         KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
+#endif
 
         feature_config.mfcc_config                          = mfcc_config;
         feature_config.ivector_extraction_config            = ie_conf_filename;
@@ -76,7 +79,7 @@ namespace kaldi {
 
         feature_info = new OnlineNnet2FeaturePipelineInfo(this->feature_config);
 
-        KALDI_LOG << "Loading model...";
+        // load model...
         {
             bool binary;
             Input ki(model_in_filename, &binary);
@@ -93,11 +96,11 @@ namespace kaldi {
             KALDI_ERR << "Could not read symbol table from file "
                        << word_syms_filename;
 
-        KALDI_LOG << "Loading model... done.";
-
     }
 
-    NNet3OnlineWrapper::~NNet3OnlineWrapper() { }
+    NNet3OnlineWrapper::~NNet3OnlineWrapper() {
+        // FIXME: fix memleaks
+    }
 
     std::string NNet3OnlineWrapper::get_decoded_string(void) {
         return this->decoded_string;
@@ -107,10 +110,11 @@ namespace kaldi {
         return this->likelihood;
     }
 
-    bool NNet3OnlineWrapper::decode(int32 num_frames, BaseFloat *frames) {
+    bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames) {
 
         using fst::VectorFst;
 
+#if VERBOSE
         KALDI_LOG << "decode(): DECODING STARTS...";
 
         KALDI_LOG << "beam:                 " << nnet3_decoding_config.decoder_opts.beam;
@@ -118,6 +122,7 @@ namespace kaldi {
         KALDI_LOG << "min_active:           " << nnet3_decoding_config.decoder_opts.min_active;
         KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.decoder_opts.lattice_beam;
         KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
+#endif
 
         OnlineIvectorExtractorAdaptationState adaptation_state(feature_info->ivector_extractor_info);
 
@@ -135,7 +140,6 @@ namespace kaldi {
                                             &feature_pipeline);
 
         std::vector<std::pair<int32, BaseFloat> > delta_weights;
-        BaseFloat samp_freq = 16000;
 
         Vector<BaseFloat> wave_part(num_frames, kUndefined);
         for (int i=0; i<num_frames; i++) {
@@ -191,8 +195,6 @@ namespace kaldi {
             decoded_string += s + ' ';
         }
         
-        KALDI_LOG << "Decoded utterance." ;
-
         return true;
     }
 }
