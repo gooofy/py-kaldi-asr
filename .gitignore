@@ -1,0 +1,13 @@
+# use glob syntax.
+syntax: glob
+*.swp
+*.swo
+*.pyc
+tmp
+old
+build
+data/models
+*.log
+TODO
+*.so
+kaldisimple/nnet3.cpp
