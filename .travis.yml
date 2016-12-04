@@ -1,0 +1,41 @@
+sudo: false
+language: python
+python:
+- '2.7'
+env:
+  matrix: 
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - gcc-4.9
+      - g++-4.9
+      - python3-dev
+      - libc6-dev-i386
+      - linux-libc-dev
+      - gcc-multilib
+      - libx11-dev
+      - libx11-dev:i386
+      - git
+      - subversion
+      - automake
+      - libtool
+      - zlib1g-dev
+      - libbz2-dev
+      - liblzma-dev
+      - libboost-all-dev
+      - libgoogle-perftools-dev
+      - libxmlrpc-c++.*-dev
+      - cmake
+      - csh
+      - libX11-dev
+branches:
+  only:
+  - master
+install:
+- pip install numpy
+- git clone https://github.com/kaldi-asr/kaldi.git
+- sed 's/\/apps\///g' -i Makefile
+script:
+- pip install .
