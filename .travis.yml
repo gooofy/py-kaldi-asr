@@ -30,10 +30,12 @@ addons:
       - cmake
       - csh
       - libX11-dev
-install:
-- pip install numpy
 branches:
   only:
   - master
+install:
+- pip install numpy
+- git clone https://github.com/kaldi-asr/kaldi.git
+- sed 's/\/apps\///g' -i Makefile
 script:
 - pip install .
