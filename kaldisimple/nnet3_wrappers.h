@@ -28,6 +28,12 @@
 #include "nnet3/nnet-am-decodable-simple.h"
 #include "online2/online-nnet3-decoding.h"
 #include "online2/online-nnet2-feature-pipeline.h"
+//additional includes added to make it work with the latest kaldi
+//newly added
+#include "decoder/lattice-faster-decoder.h"
+#include "decoder/lattice-faster-decoder.h"
+#include "nnet3/decodable-simple-looped.h"
+//
 
 namespace kaldi {
     class NNet3OnlineWrapper {
@@ -60,10 +66,17 @@ namespace kaldi {
         // feature_config includes configuration for the iVector adaptation,
         // as well as the basic features.
         OnlineNnet2FeaturePipelineConfig          feature_config;
-        OnlineNnet3DecodingConfig                 nnet3_decoding_config;   
+        //OnlineNnet3DecodingConfig                 nnet3_decoding_config;
+        //looks like the above call is deprecated and replaced by the following   
+        //newly added
+        LatticeFasterDecoderConfig                nnet3_decoding_config;   
+        //
         OnlineNnet2FeaturePipelineInfo           *feature_info;
 
         nnet3::AmNnetSimple                       am_nnet;
+        //newly added
+        nnet3::DecodableNnetSimpleLoopedInfo      *decodable_nnet_simple_looped_info;
+        //
         TransitionModel                           trans_model;
         fst::VectorFst<fst::StdArc>              *decode_fst;
         std::string                              *ie_conf_filename;

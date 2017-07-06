@@ -1,13 +1,13 @@
-KALDI_ROOT = /apps/kaldi-cuda
+KALDI_ROOT = ~/kaldilatest/kaldi
 
-CFLAGS = -I$(KALDI_ROOT)/src -msse -msse2 -Wall -I.. -pthread -DKALDI_DOUBLEPRECISION=0 -Wno-sign-compare \
-         -Wno-unused-local-typedefs -Winit-self -DHAVE_EXECINFO_H=1 -DHAVE_CXXABI_H -DHAVE_ATLAS \
-		 -I$(KALDI_ROOT)/tools/ATLAS/include -I$(KALDI_ROOT)/tools/openfst/include -g
+CFLAGS = -I$(KALDI_ROOT)/src -std=c++11 -msse -msse2 -Wall -I.. -pthread -DKALDI_DOUBLEPRECISION=0 -Wno-sign-compare \
+         -Wno-unused-local-typedefs -Winit-self -DHAVE_EXECINFO_H=1 -DHAVE_CXXABI_H -DHAVE_OPENBLAS \
+		 -I$(KALDI_ROOT)/tools/OpenBLAS/install/include -I$(KALDI_ROOT)/tools/openfst/include -g
 
-LDFLAGS = -rdynamic -L$(KALDI_ROOT)/tools/openfst/lib -L$(KALDI_ROOT)/src/lib \
-          -lfst /usr/lib64/atlas/libsatlas.so -lm -lpthread -ldl  -lkaldi-decoder \
+LDFLAGS = -rdynamic -Wl,-no-as-needed -L$(KALDI_ROOT)/tools/openfst/lib -L$(KALDI_ROOT)/src/lib \
+          -lfst -lm -lpthread -ldl  -lkaldi-decoder \
 		  -lkaldi-lat   -lkaldi-fstext   -lkaldi-hmm     -lkaldi-feat    -lkaldi-transform \
-		  -lkaldi-gmm   -lkaldi-tree     -lkaldi-util    -lkaldi-thread  -lkaldi-matrix \
+		  -lkaldi-gmm   -lkaldi-tree     -lkaldi-util    -lkaldi-matrix \
 		  -lkaldi-base  -lkaldi-nnet3    -lkaldi-online2
 
 all: kaldisimple/nnet3.so

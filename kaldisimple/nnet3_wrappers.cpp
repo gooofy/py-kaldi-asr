@@ -70,13 +70,27 @@ namespace kaldi {
         feature_config.mfcc_config                          = mfcc_config;
         feature_config.ivector_extraction_config            = ie_conf_filename;
 
+/*      //commented these out since the new object does not have 
+        //decoder_opts
         nnet3_decoding_config.decoder_opts.max_active       = max_active;
         nnet3_decoding_config.decoder_opts.min_active       = min_active;
         nnet3_decoding_config.decoder_opts.beam             = beam;
         nnet3_decoding_config.decoder_opts.lattice_beam     = lattice_beam;
 
         nnet3_decoding_config.decodable_opts.acoustic_scale = acoustic_scale;
+*/
 
+        //modified the above to the below
+        //newly added
+        nnet3_decoding_config.max_active       = max_active;
+        nnet3_decoding_config.min_active       = min_active;
+        nnet3_decoding_config.beam             = beam;
+        nnet3_decoding_config.lattice_beam     = lattice_beam;
+        //commented this out as there is no acoustic scale option
+        //nnet3_decoding_config.acoustic_scale = acoustic_scale;
+
+        
+        
         feature_info = new OnlineNnet2FeaturePipelineInfo(this->feature_config);
 
         // load model...
@@ -154,9 +168,18 @@ namespace kaldi {
 
         silence_weighting = new OnlineSilenceWeighting (trans_model, feature_info->silence_weighting_config);
         
+        //SingleUtteranceNnet3Decoder now accepts a DecodableNnetSimpleLoopedInfo object
+        //newly added
+        nnet3::NnetSimpleLoopedComputationOptions decodable_opts; //TODO initialize this object
+        //decodable_opts.opts.compute_config=
+        //decodable_opts.computation
+        
+        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(decodable_opts, &am_nnet);
+        //
+
         decoder           = new SingleUtteranceNnet3Decoder (nnet3_decoding_config,
                                                              trans_model,
-                                                             am_nnet,
+                                                             *decodable_nnet_simple_looped_info, //newly added
                                                              *decode_fst,
                                                              feature_pipeline);
         tot_frames = 0;
@@ -187,7 +210,10 @@ namespace kaldi {
           silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
           silence_weighting->GetDeltaWeights(feature_pipeline->NumFramesReady(),
                                             &delta_weights);
-          feature_pipeline->UpdateFrameWeights(delta_weights);
+          //newly added
+          //looks like the UpdateFrameWeights has been deprecated
+          //TODO What is the alternative here?
+          //feature_pipeline->UpdateFrameWeights(delta_weights);
         }
         
         decoder->AdvanceDecoding();
