@@ -133,12 +133,22 @@ namespace kaldi {
             delete adaptation_state ;
             adaptation_state  = NULL;
         }
+
     }
 
     NNet3OnlineWrapper::~NNet3OnlineWrapper() {
         // FIXME: fix memleaks?
         free_decoder();
         delete feature_info;
+        if(decodable_opts){
+            delete decodable_opts;
+            decodable_opts = NULL;
+        }
+
+        if(decodable_nnet_simple_looped_info){
+            delete decodable_nnet_simple_looped_info;
+            decodable_nnet_simple_looped_info = NULL;
+        }
     }
 
     std::string NNet3OnlineWrapper::get_decoded_string(void) {
@@ -170,11 +180,12 @@ namespace kaldi {
         
         //SingleUtteranceNnet3Decoder now accepts a DecodableNnetSimpleLoopedInfo object
         //newly added
-        nnet3::NnetSimpleLoopedComputationOptions decodable_opts; //TODO initialize this object
-        //decodable_opts.opts.compute_config=
-        //decodable_opts.computation
+        //initialize this object
+        //I am initing this object with the default values provided. Actual values should be provided for
+        //your samples
+        decodable_opts = new nnet3::NnetSimpleLoopedComputationOptions(); 
         
-        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(decodable_opts, &am_nnet);
+        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(*decodable_opts, &am_nnet);
         //
 
         decoder           = new SingleUtteranceNnet3Decoder (nnet3_decoding_config,

@@ -76,7 +76,9 @@ namespace kaldi {
         nnet3::AmNnetSimple                       am_nnet;
         //newly added
         nnet3::DecodableNnetSimpleLoopedInfo      *decodable_nnet_simple_looped_info;
+        nnet3::NnetSimpleLoopedComputationOptions *decodable_opts;
         //
+
         TransitionModel                           trans_model;
         fst::VectorFst<fst::StdArc>              *decode_fst;
         std::string                              *ie_conf_filename;
