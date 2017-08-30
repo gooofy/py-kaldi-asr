@@ -102,7 +102,8 @@ namespace kaldi {
         }
 
         // Input FST is just one FST, not a table of FSTs.
-        decode_fst = CastOrConvertToVectorFst(fst::ReadFstKaldiGeneric(fst_in_str));
+        // decode_fst = CastOrConvertToVectorFst(fst::ReadFstKaldiGeneric(fst_in_str));
+        decode_fst = fst::ReadFstKaldi(fst_in_str);
 
         word_syms = NULL;
         if (word_syms_filename != "") 
@@ -132,11 +133,6 @@ namespace kaldi {
         if (adaptation_state) {
             delete adaptation_state ;
             adaptation_state  = NULL;
-        }
-
-        if (fileHandle != NULL) {
-            delete fileHandle ;
-            fileHandle  = NULL;
         }
 
     }
@@ -201,37 +197,6 @@ namespace kaldi {
         tot_frames = 0;
     }
 
-
-    //
-    bool NNet3OnlineWrapper::decodeWav(std::string wavFile)
-    {
-                // Open input file.
-        bool successfullyDecoded = false;
-        fileHandle = new SndfileHandle( wavFile );
-        if( fileHandle == NULL || fileHandle->error() != 0 )
-        {
-            std::cerr << "Unable to read " << wavFile << std::endl;
-            std::cerr << fileHandle->strError() << std::endl;
-            return successfullyDecoded;
-        }
-
-        // file info
-        int64_t nFrames = fileHandle->frames();
-        int nChannels = fileHandle->channels();
-        int samplerate = fileHandle->samplerate();
-
-        // Read the audio 
-        std::vector<float> wavData( nFrames * nChannels );
-        int64_t bytesRead = fileHandle->read( wavData.data(), wavData.size() );
-
-        std::cout << "Frames: " << (int32)nFrames << " SampleRate: " << (kaldi::BaseFloat)samplerate << " Bytesread: " << bytesRead << std::endl;
-        
-        successfullyDecoded = this->decode((kaldi::BaseFloat)samplerate, (int32)nFrames, wavData.data(), true);
-        
-        return successfullyDecoded;
-
-    }
-    //
 
     bool NNet3OnlineWrapper::decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize) {
 
