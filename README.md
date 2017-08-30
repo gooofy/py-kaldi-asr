@@ -55,7 +55,7 @@ Requirements
 
 * Python 2.7 with numpy, ...
 * Cython
-* kaldi-asr
+* kaldi-asr 5.1
 
 Setup Notes
 ===========
