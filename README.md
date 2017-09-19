@@ -68,7 +68,7 @@ checkout lives in your filesystem.
 License
 =======
 
-My own code is Apache licensed unless otherwise noted in the scritp's copyright
+My own code is Apache licensed unless otherwise noted in the script's copyright
 headers.
 
 Some scripts and files are based on works of others, in those cases it is my
