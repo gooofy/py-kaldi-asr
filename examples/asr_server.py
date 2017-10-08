@@ -68,7 +68,7 @@ import numpy as np
 DEFAULT_HOST      = 'localhost'
 DEFAULT_PORT      = 8301
 
-DEFAULT_MODEL_DIR = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
+DEFAULT_MODEL_DIR = 'data/models/kaldi-nnet3-voxforge-de-latest'
 DEFAULT_MODEL     = 'nnet_tdnn_a'
 
 DEFAULT_VF_LOGIN  = 'anonymous'

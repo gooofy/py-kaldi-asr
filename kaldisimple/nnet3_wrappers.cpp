@@ -1,6 +1,6 @@
-// KaldiSimple.cpp
+// nnet3_wrappers.cpp
 //
-// Copyright 2016 G. Bartsch
+// Copyright 2016, 2017 G. Bartsch
 //
 // based on Kaldi's decoder/decoder-wrappers.cc
 
@@ -25,17 +25,6 @@
 #include "nnet3_wrappers.h"
 
 #include "lat/lattice-functions.h"
-#if 0
-#include "tree/context-dep.h"
-#include "hmm/transition-model.h"
-#include "decoder/decoder-wrappers.h"
-#include "gmm/decodable-am-diag-gmm.h"
-#include "base/timer.h"
-#include "feat/feature-functions.h"  // feature reversal
-#include "online2/onlinebin-util.h"
-#include "online2/online-timing.h"
-#include "online2/online-endpoint.h"
-#endif
 
 #define VERBOSE 0
 
@@ -67,21 +56,9 @@ namespace kaldi {
         KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
 #endif
 
-        feature_config.mfcc_config                          = mfcc_config;
-        feature_config.ivector_extraction_config            = ie_conf_filename;
+        feature_config.mfcc_config               = mfcc_config;
+        feature_config.ivector_extraction_config = ie_conf_filename;
 
-/*      //commented these out since the new object does not have 
-        //decoder_opts
-        nnet3_decoding_config.decoder_opts.max_active       = max_active;
-        nnet3_decoding_config.decoder_opts.min_active       = min_active;
-        nnet3_decoding_config.decoder_opts.beam             = beam;
-        nnet3_decoding_config.decoder_opts.lattice_beam     = lattice_beam;
-
-        nnet3_decoding_config.decodable_opts.acoustic_scale = acoustic_scale;
-*/
-
-        //modified the above to the below
-        //newly added
         nnet3_decoding_config.max_active       = max_active;
         nnet3_decoding_config.min_active       = min_active;
         nnet3_decoding_config.beam             = beam;
@@ -89,8 +66,6 @@ namespace kaldi {
         //commented this out as there is no acoustic scale option
         //nnet3_decoding_config.acoustic_scale = acoustic_scale;
 
-        
-        
         feature_info = new OnlineNnet2FeaturePipelineInfo(this->feature_config);
 
         // load model...
@@ -166,11 +141,11 @@ namespace kaldi {
         free_decoder();
 
 #if VERBOSE
-        KALDI_LOG << "beam:                 " << nnet3_decoding_config.decoder_opts.beam;
-        KALDI_LOG << "max_active:           " << nnet3_decoding_config.decoder_opts.max_active;
-        KALDI_LOG << "min_active:           " << nnet3_decoding_config.decoder_opts.min_active;
-        KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.decoder_opts.lattice_beam;
-        KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
+        KALDI_LOG << "beam:                 " << nnet3_decoding_config.beam;
+        KALDI_LOG << "max_active:           " << nnet3_decoding_config.max_active;
+        KALDI_LOG << "min_active:           " << nnet3_decoding_config.min_active;
+        KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.lattice_beam;
+        // KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
 #endif
 
         adaptation_state  = new OnlineIvectorExtractorAdaptationState (feature_info->ivector_extractor_info);
@@ -251,10 +226,11 @@ namespace kaldi {
             Lattice best_path_lat;
             ConvertLattice(best_path_clat, &best_path_lat);
             
-            LatticeWeight weight;
-            std::vector<int32> alignment;
             std::vector<int32> words;
+            std::vector<int32> alignment;
+            LatticeWeight      weight;
             GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
+
             likelihood = -(weight.Value1() + weight.Value2()) / (double) tot_frames;
                        
             decoded_string = "";
@@ -265,6 +241,8 @@ namespace kaldi {
                     KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
                 decoded_string += s + ' ';
             }
+
+            // done
 
             free_decoder();
         }

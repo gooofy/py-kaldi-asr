@@ -1,6 +1,6 @@
-// KaldiSimple.h
+// nnet3_wrappers.h
 //
-// Copyright 2016 G. Bartsch
+// Copyright 2016, 2017 G. Bartsch
 //
 // based on Kaldi's decoder/decoder-wrappers.cc
 
@@ -52,10 +52,10 @@ namespace kaldi {
                        ) ;
         ~NNet3OnlineWrapper();
 
-        bool        decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
+        bool               decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
 
-        std::string get_decoded_string(void);
-        double      get_likelihood(void);
+        std::string        get_decoded_string(void);
+        double             get_likelihood(void);
 
     private:
         void        start_decoding(void);

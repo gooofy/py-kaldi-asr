@@ -20,6 +20,7 @@
 
 import cython
 from libcpp.string cimport string
+from libcpp.vector cimport vector
 import numpy as np
 cimport numpy as np
 import struct

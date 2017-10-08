@@ -33,7 +33,7 @@ from kaldisimple.nnet3 import KaldiNNet3OnlineDecoder
 
 if __name__ == "__main__":
 
-    MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
+    MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-latest'
     # MODELS      = [ 'lstm_ld5', 'nnet_tdnn_a' ]
     MODELS      = [ 'nnet_tdnn_a' ]
     WAVFILES    = [ 'data/single.wav', 'data/gsp1.wav']
