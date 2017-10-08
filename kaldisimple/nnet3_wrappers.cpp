@@ -180,17 +180,14 @@ namespace kaldi {
             // no more input. flush out last frames
             feature_pipeline->InputFinished();
         }
-      
-        if (silence_weighting->Active()) {
-          silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
-          silence_weighting->GetDeltaWeights(feature_pipeline->NumFramesReady(),
-                                            &delta_weights);
-          //newly added
-          //looks like the UpdateFrameWeights has been deprecated
-          //TODO What is the alternative here?
-          //feature_pipeline->UpdateFrameWeights(delta_weights);
+
+        if (silence_weighting->Active() && feature_pipeline->IvectorFeature() != NULL) {
+            silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
+            silence_weighting->GetDeltaWeights(feature_pipeline->NumFramesReady(),
+                                               &delta_weights);
+            feature_pipeline->IvectorFeature()->UpdateFrameWeights(delta_weights);
         }
-        
+
         decoder->AdvanceDecoding();
 
         if (finalize) {
