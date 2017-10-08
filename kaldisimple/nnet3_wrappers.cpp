@@ -59,12 +59,11 @@ namespace kaldi {
         feature_config.mfcc_config               = mfcc_config;
         feature_config.ivector_extraction_config = ie_conf_filename;
 
-        nnet3_decoding_config.max_active       = max_active;
-        nnet3_decoding_config.min_active       = min_active;
-        nnet3_decoding_config.beam             = beam;
-        nnet3_decoding_config.lattice_beam     = lattice_beam;
-        //commented this out as there is no acoustic scale option
-        //nnet3_decoding_config.acoustic_scale = acoustic_scale;
+        lattice_faster_decoder_config.max_active       = max_active;
+        lattice_faster_decoder_config.min_active       = min_active;
+        lattice_faster_decoder_config.beam             = beam;
+        lattice_faster_decoder_config.lattice_beam     = lattice_beam;
+        decodable_opts.acoustic_scale                  = acoustic_scale;
 
         feature_info = new OnlineNnet2FeaturePipelineInfo(this->feature_config);
 
@@ -116,10 +115,6 @@ namespace kaldi {
         // FIXME: fix memleaks?
         free_decoder();
         delete feature_info;
-        if(decodable_opts){
-            delete decodable_opts;
-            decodable_opts = NULL;
-        }
 
         if(decodable_nnet_simple_looped_info){
             delete decodable_nnet_simple_looped_info;
@@ -141,11 +136,11 @@ namespace kaldi {
         free_decoder();
 
 #if VERBOSE
-        KALDI_LOG << "beam:                 " << nnet3_decoding_config.beam;
-        KALDI_LOG << "max_active:           " << nnet3_decoding_config.max_active;
-        KALDI_LOG << "min_active:           " << nnet3_decoding_config.min_active;
-        KALDI_LOG << "lattice_beam:         " << nnet3_decoding_config.lattice_beam;
-        // KALDI_LOG << "acoustic_scale:       " << nnet3_decoding_config.decodable_opts.acoustic_scale;
+        KALDI_LOG << "beam:                 " << lattice_faster_decoder_config.beam;
+        KALDI_LOG << "max_active:           " << lattice_faster_decoder_config.max_active;
+        KALDI_LOG << "min_active:           " << lattice_faster_decoder_config.min_active;
+        KALDI_LOG << "lattice_beam:         " << lattice_faster_decoder_config.lattice_beam;
+        KALDI_LOG << "acoustic_scale:       " << decodable_opts.acoustic_scale;
 #endif
 
         adaptation_state  = new OnlineIvectorExtractorAdaptationState (feature_info->ivector_extractor_info);
@@ -154,19 +149,11 @@ namespace kaldi {
 
         silence_weighting = new OnlineSilenceWeighting (trans_model, feature_info->silence_weighting_config);
         
-        //SingleUtteranceNnet3Decoder now accepts a DecodableNnetSimpleLoopedInfo object
-        //newly added
-        //initialize this object
-        //I am initing this object with the default values provided. Actual values should be provided for
-        //your samples
-        decodable_opts = new nnet3::NnetSimpleLoopedComputationOptions(); 
-        
-        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(*decodable_opts, &am_nnet);
-        //
+        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(decodable_opts, &am_nnet);
 
-        decoder           = new SingleUtteranceNnet3Decoder (nnet3_decoding_config,
+        decoder           = new SingleUtteranceNnet3Decoder (lattice_faster_decoder_config,
                                                              trans_model,
-                                                             *decodable_nnet_simple_looped_info, //newly added
+                                                             *decodable_nnet_simple_looped_info,
                                                              *decode_fst,
                                                              feature_pipeline);
         tot_frames = 0;
