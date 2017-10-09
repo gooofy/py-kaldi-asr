@@ -14,13 +14,14 @@ Example
 Simple wav file decoding:
 
 ```python
-from kaldisimple.nnet3 import KaldiNNet3OnlineDecoder
+from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
 MODEL       = 'nnet_tdnn_a'
 WAVFILE     = 'data/single.wav'
 
-decoder = KaldiNNet3OnlineDecoder (MODELDIR, model)
+model   = KaldiNNet3OnlineModel   (MODELDIR, MODEL)
+decoder = KaldiNNet3OnlineDecoder (model)
 
 if decoder.decode_wav_file(WAVFILE):
 

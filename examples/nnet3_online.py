@@ -29,7 +29,7 @@ import numpy as np
 
 from time import time
 
-from kaldisimple.nnet3 import KaldiNNet3OnlineDecoder
+from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 if __name__ == "__main__":
 
@@ -41,9 +41,10 @@ if __name__ == "__main__":
     for model in MODELS:
 
         print '%s loading model...' % model
-
-        decoder = KaldiNNet3OnlineDecoder (MODELDIR, model)
+        kaldi_model = KaldiNNet3OnlineModel (MODELDIR, model)
         print '%s loading model... done.' % model
+
+        decoder = KaldiNNet3OnlineDecoder (kaldi_model)
         
         for WAVFILE in WAVFILES:
 

@@ -33,22 +33,51 @@
 #include "nnet3/decodable-simple-looped.h"
 
 namespace kaldi {
-    class NNet3OnlineWrapper {
+    class NNet3OnlineModelWrapper {
+    friend class NNet3OnlineDecoderWrapper;
     public:
   
-        NNet3OnlineWrapper(BaseFloat    beam,
-                           int32        max_active,
-                           int32        min_active,
-                           BaseFloat    lattice_beam,
-                           BaseFloat    acoustic_scale, 
-                           std::string &word_syms_filename, 
-                           std::string &model_in_filename,
-                           std::string &fst_in_str,
-                           std::string &mfcc_config,
-                           std::string &ie_conf_filename,
-                           std::string &align_lex_filename
-                       ) ;
-        ~NNet3OnlineWrapper();
+        NNet3OnlineModelWrapper(BaseFloat    beam,
+                                int32        max_active,
+                                int32        min_active,
+                                BaseFloat    lattice_beam,
+                                BaseFloat    acoustic_scale, 
+                                std::string &word_syms_filename, 
+                                std::string &model_in_filename,
+                                std::string &fst_in_str,
+                                std::string &mfcc_config,
+                                std::string &ie_conf_filename,
+                                std::string &align_lex_filename
+                               ) ;
+        ~NNet3OnlineModelWrapper();
+
+    private:
+
+        fst::SymbolTable                          *word_syms;
+
+        // feature_config includes configuration for the iVector adaptation,
+        // as well as the basic features.
+        OnlineNnet2FeaturePipelineConfig           feature_config;
+        LatticeFasterDecoderConfig                 lattice_faster_decoder_config;   
+        
+        OnlineNnet2FeaturePipelineInfo            *feature_info;
+
+        nnet3::AmNnetSimple                        am_nnet;
+        nnet3::NnetSimpleLoopedComputationOptions  decodable_opts;
+
+        TransitionModel                            trans_model;
+        fst::VectorFst<fst::StdArc>               *decode_fst;
+        std::string                               *ie_conf_filename;
+
+        // word alignment:
+        std::vector<std::vector<int32> >           word_alignment_lexicon;
+    };
+
+    class NNet3OnlineDecoderWrapper {
+    public:
+  
+        NNet3OnlineDecoderWrapper(NNet3OnlineModelWrapper *aModel);
+        ~NNet3OnlineDecoderWrapper();
 
         bool               decode(BaseFloat  samp_freq, 
                                   int32      num_frames, 
@@ -62,38 +91,27 @@ namespace kaldi {
                                               std::vector<int32>  &lengths);
 
     private:
-        void               start_decoding(void);
-        void               free_decoder(void);
 
-        fst::SymbolTable                          *word_syms;
+        void start_decoding(void);
+        void free_decoder(void);
 
-        // feature_config includes configuration for the iVector adaptation,
-        // as well as the basic features.
-        OnlineNnet2FeaturePipelineConfig           feature_config;
-        LatticeFasterDecoderConfig                 lattice_faster_decoder_config;   
-        
-        OnlineNnet2FeaturePipelineInfo            *feature_info;
-
-        nnet3::AmNnetSimple                        am_nnet;
-        nnet3::DecodableNnetSimpleLoopedInfo      *decodable_nnet_simple_looped_info;
-        nnet3::NnetSimpleLoopedComputationOptions  decodable_opts;
-
-        TransitionModel                            trans_model;
-        fst::VectorFst<fst::StdArc>               *decode_fst;
-        std::string                               *ie_conf_filename;
+        NNet3OnlineModelWrapper                   *model;
 
         OnlineIvectorExtractorAdaptationState     *adaptation_state;
         OnlineNnet2FeaturePipeline                *feature_pipeline;
         OnlineSilenceWeighting                    *silence_weighting;
+        nnet3::DecodableNnetSimpleLoopedInfo      *decodable_nnet_simple_looped_info;
         SingleUtteranceNnet3Decoder               *decoder;
+
         std::vector<std::pair<int32, BaseFloat> >  delta_weights;
-        int32                                      tot_frames;
+        int32                                      tot_frames, tot_frames_decoded;
 
         // decoding result:
         CompactLattice                             best_path_clat;
 
-        // word alignment:
-        std::vector<std::vector<int32> >           word_alignment_lexicon;
     };
+
+
+
 }
 

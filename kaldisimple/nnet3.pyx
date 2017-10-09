@@ -29,20 +29,24 @@ from tempfile import NamedTemporaryFile
 
 cdef extern from "nnet3_wrappers.h" namespace "kaldi":
 
-    cdef cppclass NNet3OnlineWrapper:
-        NNet3OnlineWrapper() except +
-        NNet3OnlineWrapper(float, int, int, float, float, string, string, string, string, string, string) except +
+    cdef cppclass NNet3OnlineModelWrapper:
+        NNet3OnlineModelWrapper() except +
+        NNet3OnlineModelWrapper(float, int, int, float, float, string, string, string, string, string, string) except +
+
+    cdef cppclass NNet3OnlineDecoderWrapper:
+        NNet3OnlineDecoderWrapper() except +
+        NNet3OnlineDecoderWrapper(NNet3OnlineModelWrapper *) except +
 
         bint decode(float, int, float *, bint) except +
 
         void get_decoded_string(string &, float &) except +
         bint get_word_alignment(vector[string] &, vector[np.int32_t] &, vector[np.int32_t] &) except +
 
-cdef class KaldiNNet3OnlineDecoder:
+cdef class KaldiNNet3OnlineModel:
 
-    cdef NNet3OnlineWrapper* ks
-    cdef string              modeldir, model
-    cdef object              ie_conf_f
+    cdef NNet3OnlineModelWrapper* model_wrapper
+    cdef string                   modeldir, model
+    cdef object                   ie_conf_f
 
     def __cinit__(self, string modeldir, 
                         string model,
@@ -92,36 +96,53 @@ cdef class KaldiNNet3OnlineDecoder:
         # instantiate our C++ wrapper class
         #
 
-        self.ks = new NNet3OnlineWrapper(beam, 
-                                         max_active, 
-                                         min_active, 
-                                         lattice_beam, 
-                                         acoustic_scale, 
-                                         word_symbol_table, 
-                                         model_in_filename, 
-                                         fst_in_str, 
-                                         mfcc_config,
-                                         self.ie_conf_f.name,
-                                         align_lex_filename)
+        self.model_wrapper = new NNet3OnlineModelWrapper(beam, 
+                                                         max_active, 
+                                                         min_active, 
+                                                         lattice_beam, 
+                                                         acoustic_scale, 
+                                                         word_symbol_table, 
+                                                         model_in_filename, 
+                                                         fst_in_str, 
+                                                         mfcc_config,
+                                                         self.ie_conf_f.name,
+                                                         align_lex_filename)
 
     def __dealloc__(self):
         self.ie_conf_f.close()
-        del self.ks
+        del self.model_wrapper
+
+cdef class KaldiNNet3OnlineDecoder:
+
+    cdef NNet3OnlineDecoderWrapper* decoder_wrapper
+    cdef string                     modeldir, model
+    cdef object                     ie_conf_f
+
+    def __cinit__(self, KaldiNNet3OnlineModel model):
+
+        #
+        # instantiate our C++ wrapper class
+        #
+
+        self.decoder_wrapper = new NNet3OnlineDecoderWrapper(model.model_wrapper)
+
+    def __dealloc__(self):
+        del self.decoder_wrapper
 
     def decode(self, samp_freq, np.ndarray[float, ndim=1, mode="c"] samples not None, finalize):
-        return self.ks.decode(samp_freq, samples.shape[0], <float *> samples.data, finalize)
+        return self.decoder_wrapper.decode(samp_freq, samples.shape[0], <float *> samples.data, finalize)
 
     def get_decoded_string(self):
         cdef string decoded_string
         cdef double likelihood
-        self.ks.get_decoded_string(decoded_string, likelihood)
+        self.decoder_wrapper.get_decoded_string(decoded_string, likelihood)
         return decoded_string, likelihood
 
     def get_word_alignment(self):
         cdef vector[string]     words
         cdef vector[np.int32_t] times
         cdef vector[np.int32_t] lengths
-        if not self.ks.get_word_alignment(words, times, lengths):
+        if not self.decoder_wrapper.get_word_alignment(words, times, lengths):
             return None
         return words, times, lengths
 

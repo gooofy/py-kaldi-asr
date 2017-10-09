@@ -62,7 +62,7 @@ from optparse import OptionParser
 from setproctitle import setproctitle
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
-from kaldisimple.nnet3 import KaldiNNet3OnlineDecoder
+from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
 
 DEFAULT_HOST      = 'localhost'
@@ -235,8 +235,9 @@ if __name__ == '__main__':
 
     start_time = time()
     logging.info('%s loading model from %s ...' % (kaldi_model, kaldi_model_dir))
-    decoder = KaldiNNet3OnlineDecoder (kaldi_model_dir, kaldi_model)
+    nnet3_model = KaldiNNet3OnlineModel (kaldi_model_dir, kaldi_model)
     logging.info('%s loading model... done. took %fs.' % (kaldi_model, time()-start_time))
+    decoder = KaldiNNet3OnlineDecoder (nnet3_model)
 
     #
     # run HTTP server
