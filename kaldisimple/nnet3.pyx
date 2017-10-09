@@ -31,12 +31,12 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
 
     cdef cppclass NNet3OnlineWrapper:
         NNet3OnlineWrapper() except +
-        NNet3OnlineWrapper(float, int, int, float, float, string, string, string, string, string) except +
+        NNet3OnlineWrapper(float, int, int, float, float, string, string, string, string, string, string) except +
 
         bint decode(float, int, float *, bint) except +
 
-        string get_decoded_string() except +
-        float get_likelihood() except +
+        void get_decoded_string(string &, float &) except +
+        bint get_word_alignment(vector[string] &, vector[np.int32_t] &, vector[np.int32_t] &) except +
 
 cdef class KaldiNNet3OnlineDecoder:
 
@@ -66,6 +66,7 @@ cdef class KaldiNNet3OnlineDecoder:
         cdef string model_in_filename     = '%s/%s/final.mdl'           % (self.modeldir, self.model)
         cdef string splice_conf_filename  = '%s/extractor/splice.conf'  % self.modeldir
         cdef string fst_in_str            = '%s/%s/HCLG.fst'            % (self.modeldir, self.model)
+        cdef string align_lex_filename    = '%s/%s/align_lexicon.int'   % (self.modeldir, self.model)
 
         #
         # generate ivector_extractor.conf
@@ -100,7 +101,8 @@ cdef class KaldiNNet3OnlineDecoder:
                                          model_in_filename, 
                                          fst_in_str, 
                                          mfcc_config,
-                                         self.ie_conf_f.name)
+                                         self.ie_conf_f.name,
+                                         align_lex_filename)
 
     def __dealloc__(self):
         self.ie_conf_f.close()
@@ -110,10 +112,18 @@ cdef class KaldiNNet3OnlineDecoder:
         return self.ks.decode(samp_freq, samples.shape[0], <float *> samples.data, finalize)
 
     def get_decoded_string(self):
-        return self.ks.get_decoded_string()
+        cdef string decoded_string
+        cdef double likelihood
+        self.ks.get_decoded_string(decoded_string, likelihood)
+        return decoded_string, likelihood
 
-    def get_likelihood(self):
-        return self.ks.get_likelihood()
+    def get_word_alignment(self):
+        cdef vector[string]     words
+        cdef vector[np.int32_t] times
+        cdef vector[np.int32_t] lengths
+        if not self.ks.get_word_alignment(words, times, lengths):
+            return None
+        return words, times, lengths
 
     #
     # various convenience functions below

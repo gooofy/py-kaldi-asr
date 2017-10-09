@@ -51,12 +51,20 @@ if __name__ == "__main__":
             if decoder.decode_wav_file(WAVFILE):
                 print '%s decoding worked!' % model
 
-                s = decoder.get_decoded_string()
+                s,l = decoder.get_decoded_string()
                 print
                 print "*****************************************************************"
                 print "**", WAVFILE
                 print "**", s
-                print "** %s likelihood:" % model, decoder.get_likelihood()
+                print "** %s likelihood:" % model, l
+
+                time_scale = 0.01
+                words, times, lengths = decoder.get_word_alignment()
+
+                print "** word alignment: :"
+                for i, word in enumerate(words):
+                    print '**   %f\t%f\t%s' % (time_scale * float(times[i]), time_scale*float(times[i] + lengths[i]), word)
+
                 print "*****************************************************************"
                 print
 

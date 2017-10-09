@@ -45,14 +45,21 @@ namespace kaldi {
                            std::string &model_in_filename,
                            std::string &fst_in_str,
                            std::string &mfcc_config,
-                           std::string &ie_conf_filename
+                           std::string &ie_conf_filename,
+                           std::string &align_lex_filename
                        ) ;
         ~NNet3OnlineWrapper();
 
-        bool               decode(BaseFloat samp_freq, int32 num_frames, BaseFloat *frames, bool finalize);
+        bool               decode(BaseFloat  samp_freq, 
+                                  int32      num_frames, 
+                                  BaseFloat *frames, 
+                                  bool       finalize);
 
-        std::string        get_decoded_string(void);
-        double             get_likelihood(void);
+        void               get_decoded_string(std::string &decoded_string, 
+                                              double &likelihood);
+        bool               get_word_alignment(std::vector<string> &words,
+                                              std::vector<int32>  &times,
+                                              std::vector<int32>  &lengths);
 
     private:
         void               start_decoding(void);
@@ -82,8 +89,11 @@ namespace kaldi {
         std::vector<std::pair<int32, BaseFloat> >  delta_weights;
         int32                                      tot_frames;
 
-        std::string                                decoded_string;
-        double                                     likelihood;
+        // decoding result:
+        CompactLattice                             best_path_clat;
+
+        // word alignment:
+        std::vector<std::vector<int32> >           word_alignment_lexicon;
     };
 }
 

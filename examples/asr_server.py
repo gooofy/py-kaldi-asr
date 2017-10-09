@@ -167,8 +167,7 @@ class SpeechHandler(BaseHTTPRequestHandler):
 
                 if do_finalize:
 
-                    hstr       = decoder.get_decoded_string()
-                    confidence = decoder.get_likelihood()
+                    hstr, confidence = decoder.get_decoded_string()
 
                     logging.debug ( "*****************************************************************************")
                     logging.debug ( "**")

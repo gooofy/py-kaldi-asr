@@ -76,12 +76,12 @@ if __name__ == "__main__":
 
     wavf.close()
 
-    s = decoder.get_decoded_string()
+    s, l = decoder.get_decoded_string()
     print
     print "*****************************************************************"
     print "**", WAVFILE
     print "**", s
-    print "** %s likelihood:" % MODEL, decoder.get_likelihood()
+    print "** %s likelihood:" % MODEL, l
     print "*****************************************************************"
     print
     print "%s decoding took %8.2fs" % (MODEL, time() - time_start )

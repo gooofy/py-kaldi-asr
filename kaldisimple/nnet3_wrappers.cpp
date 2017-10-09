@@ -25,6 +25,7 @@
 #include "nnet3_wrappers.h"
 
 #include "lat/lattice-functions.h"
+#include "lat/word-align-lattice-lexicon.h"
 
 #define VERBOSE 0
 
@@ -39,7 +40,8 @@ namespace kaldi {
                                            std::string &model_in_filename,
                                            std::string &fst_in_str,
                                            std::string &mfcc_config,
-                                           std::string &ie_conf_filename)
+                                           std::string &ie_conf_filename,
+                                           std::string &align_lex_filename)
 
     {
 
@@ -54,6 +56,7 @@ namespace kaldi {
         KALDI_LOG << "fst_in_str:                " << fst_in_str;
         KALDI_LOG << "mfcc_config:               " << mfcc_config;
         KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
+        KALDI_LOG << "align_lex_filename:        " << align_lex_filename;
 #endif
 
         feature_config.mfcc_config               = mfcc_config;
@@ -89,6 +92,19 @@ namespace kaldi {
         feature_pipeline  = NULL;
         silence_weighting = NULL;
         decoder           = NULL;
+
+#if VERBOSE
+        KALDI_LOG << "loading word alignment lexicon...";
+#endif
+        {
+            bool binary_in;
+            Input ki(align_lex_filename, &binary_in);
+            KALDI_ASSERT(!binary_in && "Not expecting binary file for lexicon");
+            if (!ReadLexiconForWordAlign(ki.Stream(), &word_alignment_lexicon)) {
+                KALDI_ERR << "Error reading alignment lexicon from "
+                          << align_lex_filename;
+            }
+        }
     }
 
     void NNet3OnlineWrapper::free_decoder(void) {
@@ -122,13 +138,85 @@ namespace kaldi {
         }
     }
 
-    std::string NNet3OnlineWrapper::get_decoded_string(void) {
-        return this->decoded_string;
+    void NNet3OnlineWrapper::get_decoded_string(std::string &decoded_string, double &likelihood) {
+
+        //std::string                                decoded_string;
+        //double                                     likelihood;
+
+        Lattice best_path_lat;
+        ConvertLattice(best_path_clat, &best_path_lat);
+        
+        std::vector<int32> words;
+        std::vector<int32> alignment;
+        LatticeWeight      weight;
+        GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
+
+        likelihood = -(weight.Value1() + weight.Value2()) / (double) tot_frames;
+                   
+        decoded_string = "";
+
+        for (size_t i = 0; i < words.size(); i++) {
+            std::string s = word_syms->Find(words[i]);
+            if (s == "")
+                KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
+            decoded_string += s + ' ';
+        }
     }
 
-    double NNet3OnlineWrapper::get_likelihood(void) {
-        return this->likelihood;
+    bool NNet3OnlineWrapper::get_word_alignment(std::vector<string> &words,
+                                                std::vector<int32>  &times,
+                                                std::vector<int32>  &lengths) {
+
+        WordAlignLatticeLexiconInfo lexicon_info(word_alignment_lexicon);
+
+#if VERBOSE
+        KALDI_LOG << "word alignment starts...";
+#endif
+        CompactLattice aligned_clat;
+        WordAlignLatticeLexiconOpts opts;
+
+        bool ok = WordAlignLatticeLexicon(best_path_clat, trans_model, lexicon_info, opts, &aligned_clat);
+
+        if (!ok) {
+            KALDI_WARN << "Lattice did not align correctly";
+            return false;
+        } else {
+            if (aligned_clat.Start() == fst::kNoStateId) {
+                KALDI_WARN << "Lattice was empty";
+                return false;
+            } else {
+#if VERBOSE
+                KALDI_LOG << "Aligned lattice.";
+#endif
+                TopSortCompactLatticeIfNeeded(&aligned_clat);
+
+                // lattice-1best
+
+                CompactLattice best_path_aligned;
+                CompactLatticeShortestPath(aligned_clat, &best_path_aligned); 
+
+                // nbest-to-ctm
+
+                std::vector<int32> word_idxs;
+                if (!CompactLatticeToWordAlignment(best_path_aligned, &word_idxs, &times, &lengths)) {
+                    KALDI_WARN << "CompactLatticeToWordAlignment failed.";
+                    return false;
+                }
+
+                // lexicon lookup
+                words.clear();
+                for (size_t i = 0; i < word_idxs.size(); i++) {
+                    std::string s = word_syms->Find(word_idxs[i]);
+                    if (s == "") {
+                        KALDI_ERR << "Word-id " << word_idxs[i] << " not in symbol table.";
+                    }
+                    words.push_back(s);
+                }
+            }
+        }
+        return true;
     }
+
 
     void NNet3OnlineWrapper::start_decoding(void) {
         // setup decoder pipeline
@@ -204,28 +292,8 @@ namespace kaldi {
               return false;
             }
 
-            CompactLattice best_path_clat;
             CompactLatticeShortestPath(clat, &best_path_clat);
             
-            Lattice best_path_lat;
-            ConvertLattice(best_path_clat, &best_path_lat);
-            
-            std::vector<int32> words;
-            std::vector<int32> alignment;
-            LatticeWeight      weight;
-            GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
-
-            likelihood = -(weight.Value1() + weight.Value2()) / (double) tot_frames;
-                       
-            decoded_string = "";
-
-            for (size_t i = 0; i < words.size(); i++) {
-                std::string s = word_syms->Find(words[i]);
-                if (s == "")
-                    KALDI_ERR << "Word-id " << words[i] << " not in symbol table.";
-                decoded_string += s + ' ';
-            }
-
             // done
 
             free_decoder();

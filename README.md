@@ -26,11 +26,11 @@ if decoder.decode_wav_file(WAVFILE):
 
     print '%s decoding worked!' % model
 
-    s = decoder.get_decoded_string()
+    s, l = decoder.get_decoded_string()
     print
     print "*****************************************************************"
     print "**", s
-    print "** %s likelihood:" % model, decoder.get_likelihood()
+    print "** %s likelihood:" % model, l
     print "*****************************************************************"
     print
 
