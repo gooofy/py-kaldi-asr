@@ -22,7 +22,7 @@ import cython
 from libcpp.string cimport string
 from libcpp.vector cimport vector
 import numpy as np
-cimport numpy as np
+cimport numpy as cnp
 import struct
 import wave
 from tempfile import NamedTemporaryFile
@@ -40,7 +40,7 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
         bint decode(float, int, float *, bint) except +
 
         void get_decoded_string(string &, float &) except +
-        bint get_word_alignment(vector[string] &, vector[np.int32_t] &, vector[np.int32_t] &) except +
+        bint get_word_alignment(vector[string] &, vector[int] &, vector[int] &) except +
 
 cdef class KaldiNNet3OnlineModel:
 
@@ -129,7 +129,7 @@ cdef class KaldiNNet3OnlineDecoder:
     def __dealloc__(self):
         del self.decoder_wrapper
 
-    def decode(self, samp_freq, np.ndarray[float, ndim=1, mode="c"] samples not None, finalize):
+    def decode(self, samp_freq, cnp.ndarray[float, ndim=1, mode="c"] samples not None, finalize):
         return self.decoder_wrapper.decode(samp_freq, samples.shape[0], <float *> samples.data, finalize)
 
     def get_decoded_string(self):
@@ -139,9 +139,9 @@ cdef class KaldiNNet3OnlineDecoder:
         return decoded_string, likelihood
 
     def get_word_alignment(self):
-        cdef vector[string]     words
-        cdef vector[np.int32_t] times
-        cdef vector[np.int32_t] lengths
+        cdef vector[string] words
+        cdef vector[int] times
+        cdef vector[int] lengths
         if not self.decoder_wrapper.get_word_alignment(words, times, lengths):
             return None
         return words, times, lengths
