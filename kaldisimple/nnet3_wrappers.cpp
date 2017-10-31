@@ -27,7 +27,7 @@
 #include "lat/lattice-functions.h"
 #include "lat/word-align-lattice-lexicon.h"
 
-#define VERBOSE 1
+#define VERBOSE 0
 
 namespace kaldi {
 
@@ -231,6 +231,14 @@ namespace kaldi {
     /*
      * NNet3OnlineModelWrapper
      */
+
+    // typedef void (*LogHandler)(const LogMessageEnvelope &envelope,
+    //                            const char *message);
+    void silent_log_handler (const LogMessageEnvelope &envelope,
+                             const char *message) {
+        // nothing - this handler simply keeps silent
+    }
+
     NNet3OnlineModelWrapper::NNet3OnlineModelWrapper(BaseFloat    beam,                       
                                                      int32        max_active,
                                                      int32        min_active,
@@ -257,6 +265,9 @@ namespace kaldi {
         KALDI_LOG << "mfcc_config:               " << mfcc_config;
         KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
         KALDI_LOG << "align_lex_filename:        " << align_lex_filename;
+#else
+        // silence kaldi output as well
+        SetLogHandler(silent_log_handler);
 #endif
 
         feature_config.mfcc_config                 = mfcc_config;
