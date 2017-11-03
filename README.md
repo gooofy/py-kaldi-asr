@@ -52,8 +52,6 @@ Links
 Requirements
 ============
 
-*Note*: very incomplete.
-
 * Python 2.7
 * NumPy
 * Cython
