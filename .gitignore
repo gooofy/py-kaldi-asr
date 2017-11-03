@@ -11,3 +11,4 @@ data/models
 TODO
 *.so
 kaldisimple/nnet3.cpp
+data/atlas.pc
