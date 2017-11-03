@@ -1,22 +1,15 @@
-KALDI_ROOT = /apps/kaldi
-
-CFLAGS = -I$(KALDI_ROOT)/src -Wall -I.. -pthread -std=c++11 \
-         -DKALDI_DOUBLEPRECISION=0 -Wno-sign-compare \
+CFLAGS = -Wall -pthread -std=c++11 -DKALDI_DOUBLEPRECISION=0 -Wno-sign-compare \
          -Wno-unused-local-typedefs -Winit-self -DHAVE_EXECINFO_H=1 -DHAVE_CXXABI_H -DHAVE_ATLAS \
-         `pkg-config --cflags atlas` -I$(KALDI_ROOT)/tools/openfst/include -g
+         `pkg-config --cflags kaldi-asr` -g
 
-LDFLAGS = -rdynamic -L$(KALDI_ROOT)/tools/openfst/lib -L$(KALDI_ROOT)/src/lib \
-          -lfst `pkg-config --libs atlas` -lm -lpthread -ldl  -lkaldi-decoder \
-		  -lkaldi-lat   -lkaldi-fstext   -lkaldi-hmm     -lkaldi-feat    -lkaldi-transform \
-		  -lkaldi-gmm   -lkaldi-tree     -lkaldi-util    -lkaldi-matrix \
-		  -lkaldi-base  -lkaldi-nnet3    -lkaldi-online2
+LDFLAGS = -rdynamic -lm -lpthread -ldl `pkg-config --libs kaldi-asr`
 
-all: kaldisimple/nnet3.so
+all: kaldiasr/nnet3.so
 
-kaldisimple/nnet3.so:	kaldisimple/nnet3.pyx kaldisimple/nnet3_wrappers.cpp kaldisimple/nnet3_wrappers.h
+kaldiasr/nnet3.so:	kaldiasr/nnet3.pyx kaldiasr/nnet3_wrappers.cpp kaldiasr/nnet3_wrappers.h
 	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" python setup.py build_ext --inplace
 
 clean:
-	rm -f kaldisimple/nnet3.cpp kaldisimple/nnet3.so kaldisimple/*.pyc
+	rm -f kaldiasr/nnet3.cpp kaldiasr/nnet3.so kaldiasr/*.pyc
 	rm -rf build
 

@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 #
-# another more advanced demonstration program for kaldisimple online nnet3 
+# another more advanced demonstration program for kaldiasr online nnet3 
 # decoding where we stream audio frames incrementally to two decoder instances
 # running on the same model simultaneously
 #
@@ -31,7 +31,7 @@ import numpy as np
 
 from time import time
 
-from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 if __name__ == "__main__":
 

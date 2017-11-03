@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*- 
 
 #
-# Copyright 2016 Guenter Bartsch
+# Copyright 2016, 2017 Guenter Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 # limitations under the License.
 #
 #
-# slightly more advanced demonstration program for kaldisimple online nnet3 
+# slightly more advanced demonstration program for kaldiasr online nnet3 
 # decoding where we stream audio frames incrementally to the decoder
 #
 
@@ -30,7 +30,7 @@ import numpy as np
 
 from time import time
 
-from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 if __name__ == "__main__":
 

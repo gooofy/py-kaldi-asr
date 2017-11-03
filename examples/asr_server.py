@@ -62,7 +62,7 @@ from optparse import OptionParser
 from setproctitle import setproctitle
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 
-from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 import numpy as np
 
 DEFAULT_HOST      = 'localhost'

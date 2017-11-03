@@ -1,6 +1,6 @@
-# py-kaldi-simple
+# py-kaldi-asr
 
-Some simple wrappers around kaldi-asr intended to make using kaldi's (online)
+Some simple wrappers around kaldi-asr intended to make using kaldi's (online, nnet3)
 decoders as convenient as possible. 
 
 Target audience are developers who would like to use kaldi-asr as-is for speech
@@ -14,7 +14,7 @@ Example
 Simple wav file decoding:
 
 ```python
-from kaldisimple.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
+from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
 MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
 MODEL       = 'nnet_tdnn_a'
@@ -47,24 +47,40 @@ Links
 
 * [Data / Models](http://goofy.zamia.org/voxforge/ "models")
 
-* [Code](https://github.com/gooofy/py-kaldi-simple "github")
+* [Code](https://github.com/gooofy/py-kaldi-asr "github")
 
 Requirements
 ============
 
 *Note*: very incomplete.
 
-* Python 2.7 with numpy, ...
+* Python 2.7
+* NumPy
 * Cython
-* kaldi-asr 5.1
+* [kaldi-asr 5.1](http://kaldi-asr.org/ "kaldi-asr.org")
 
 Setup Notes
 ===========
 
 At the time of this writing kaldi-asr does not seem to have an official way to
-install it on a system. So, for now you will have to modify the supplied
-Makefile and make sure the KALDI\_ROOT variable points to wherever your kaldi
-checkout lives in your filesystem.
+install it on a system. 
+
+So, for now we will rely on pkg-config to provide LIBS and CFLAGS for compilation:
+Create a file called `kaldi-asr.pc` somewhere in your `PKG_CONFIG_PATH` that provides
+this information:
+
+```bash
+kaldi_root=/apps/kaldi
+
+Name: kaldi-asr
+Description: kaldi-asr speech recognition toolkit
+Version: 5.1
+Requires: atlas
+Libs: -L${kaldi_root}/tools/openfst/lib -L${kaldi_root}/src/lib -lkaldi-decoder -lkaldi-lat -lkaldi-fstext -lkaldi-hmm -lkaldi-feat -lkaldi-transform -lkaldi-gmm -lkaldi-tree -lkaldi-util -lkaldi-matrix -lkaldi-base -lkaldi-nnet3 -lkaldi-online2
+Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
+```
+
+make sure `kaldi_root` points to wherever your kaldi checkout lives in your filesystem.
 
 License
 =======

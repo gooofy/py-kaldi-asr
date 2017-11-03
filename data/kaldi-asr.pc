@@ -1,0 +1,8 @@
+kaldi_root=/apps/kaldi
+
+Name: kaldi-asr
+Description: kaldi-asr speech recognition toolkit
+Version: 5.1
+Requires: atlas
+Libs: -L${kaldi_root}/tools/openfst/lib -L${kaldi_root}/src/lib -lkaldi-decoder -lkaldi-lat -lkaldi-fstext -lkaldi-hmm -lkaldi-feat -lkaldi-transform -lkaldi-gmm -lkaldi-tree -lkaldi-util -lkaldi-matrix -lkaldi-base -lkaldi-nnet3 -lkaldi-online2
+Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
