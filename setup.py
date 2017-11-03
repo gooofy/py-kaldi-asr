@@ -1,5 +1,7 @@
-from distutils.core import setup
-from distutils.extension import Extension
+from setuptools import setup, Extension
+
+# from distutils.core import setup
+# from distutils.extension import Extension
 import numpy
 
 try:
@@ -27,7 +29,7 @@ else:
     ]
 
 setup(
-    name                 = 'kaldiasr',
+    name                 = 'py-kaldi-asr',
     version              = '0.1.0',
     description          = 'Simple Python/Cython interface to kaldi-asr decoders',
     long_description     = open('README.md').read(),

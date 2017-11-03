@@ -12,3 +12,5 @@ TODO
 *.so
 kaldiasr/nnet3.cpp
 data/atlas.pc
+dist
+py_kaldi_asr.egg-info
