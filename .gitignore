@@ -10,5 +10,5 @@ data/models
 *.log
 TODO
 *.so
-kaldisimple/nnet3.cpp
+kaldiasr/nnet3.cpp
 data/atlas.pc
