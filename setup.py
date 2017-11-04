@@ -31,7 +31,7 @@ else:
 setup(
     name                 = 'py-kaldi-asr',
     version              = '0.1.0',
-    description          = 'Simple Python/Cython interface to kaldi-asr decoders',
+    description          = 'Simple Python/Cython interface to kaldi-asr nnet3 decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
     author_email         = 'guenter@zamia.org',
