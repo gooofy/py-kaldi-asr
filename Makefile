@@ -4,18 +4,21 @@ CFLAGS = -Wall -pthread -std=c++11 -DKALDI_DOUBLEPRECISION=0 -Wno-sign-compare \
 
 LDFLAGS = -rdynamic -lm -lpthread -ldl `pkg-config --libs kaldi-asr`
 
-.PHONY:	clean dist
+.PHONY:	clean dist upload
 
 all: kaldiasr/nnet3.so
 
 kaldiasr/nnet3.so:	kaldiasr/nnet3.pyx kaldiasr/nnet3_wrappers.cpp kaldiasr/nnet3_wrappers.h
-	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" python setup.py build_ext --inplace
+	python setup.py build_ext --inplace
 
-dist:	kaldiasr/nnet3.so
-	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" python setup.py sdist
-	CFLAGS="$(CFLAGS)" LDFLAGS="$(LDFLAGS)" python setup.py bdist_wheel
+dist:
+	python setup.py sdist
+	# python setup.py bdist_wheel
+
+upload:
+	twine upload dist/*
 
 clean:
 	rm -f kaldiasr/nnet3.cpp kaldiasr/nnet3.so kaldiasr/*.pyc MANIFEST
-	rm -rf build dist kaldiasr.egg-info
+	rm -rf build dist kaldiasr.egg-info py_kaldi_asr.egg-info
 
