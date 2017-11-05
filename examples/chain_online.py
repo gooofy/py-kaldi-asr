@@ -38,7 +38,7 @@ WAVFILES    = [ 'data/single.wav', 'data/gsp1.wav']
 for model in MODELS:
 
     print '%s loading model...' % model
-    kaldi_model = KaldiNNet3OnlineModel (MODELDIR, model, acoustic_scale=1.0, beam=7.0)
+    kaldi_model = KaldiNNet3OnlineModel (MODELDIR, model, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3.0)
     print '%s loading model... done.' % model
 
     decoder = KaldiNNet3OnlineDecoder (kaldi_model)

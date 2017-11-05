@@ -37,8 +37,9 @@ MODEL       = 'tdnn_sp'
 WAVFILE     = 'data/gsp1.wav'
 
 print '%s loading model...' % MODEL
-kaldi_model = KaldiNNet3OnlineModel (MODELDIR, MODEL, acoustic_scale=1.0, beam=7.0)
-print '%s loading model... done.' % MODEL
+time_start = time()
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR, MODEL, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3.0)
+print '%s loading model... done, took %fs.' % (MODEL, time()-time_start)
 
 decoder = KaldiNNet3OnlineDecoder (kaldi_model)
 

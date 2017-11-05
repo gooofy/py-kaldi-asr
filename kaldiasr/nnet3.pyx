@@ -31,7 +31,7 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
 
     cdef cppclass NNet3OnlineModelWrapper:
         NNet3OnlineModelWrapper() except +
-        NNet3OnlineModelWrapper(float, int, int, float, float, string, string, string, string, string, string) except +
+        NNet3OnlineModelWrapper(float, int, int, float, float, float, string, string, string, string, string, string) except +
 
     cdef cppclass NNet3OnlineDecoderWrapper:
         NNet3OnlineDecoderWrapper() except +
@@ -50,17 +50,18 @@ cdef class KaldiNNet3OnlineModel:
 
     def __cinit__(self, string modeldir, 
                         string model,
-                        float  beam                  = 15.0,
-                        int    max_active            = 7000,
-                        int    min_active            = 200,
-                        float  lattice_beam          = 8.0, 
-                        float  acoustic_scale        = 0.1, 
+                        float  beam                     = 15.0,
+                        int    max_active               = 7000,
+                        int    min_active               = 200,
+                        float  lattice_beam             = 8.0, 
+                        float  acoustic_scale           = 0.1, 
+                        float  frame_subsampling_factor = 1.0, 
 
-                        int    num_gselect           = 5,
-                        float  min_post              = 0.025,
-                        float  posterior_scale       = 0.1,
-                        int    max_count             = 0,
-                        int    online_ivector_period = 10):
+                        int    num_gselect              = 5,
+                        float  min_post                 = 0.025,
+                        float  posterior_scale          = 0.1,
+                        int    max_count                = 0,
+                        int    online_ivector_period    = 10):
 
         self.modeldir         = modeldir
         self.model            = model
@@ -101,6 +102,7 @@ cdef class KaldiNNet3OnlineModel:
                                                          min_active, 
                                                          lattice_beam, 
                                                          acoustic_scale, 
+                                                         frame_subsampling_factor, 
                                                          word_symbol_table, 
                                                          model_in_filename, 
                                                          fst_in_str, 

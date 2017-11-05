@@ -244,6 +244,7 @@ namespace kaldi {
                                                      int32        min_active,
                                                      BaseFloat    lattice_beam,
                                                      BaseFloat    acoustic_scale, 
+                                                     BaseFloat    frame_subsampling_factor,
                                                      std::string &word_syms_filename, 
                                                      std::string &model_in_filename,
                                                      std::string &fst_in_str,
@@ -278,6 +279,7 @@ namespace kaldi {
         lattice_faster_decoder_config.beam         = beam;
         lattice_faster_decoder_config.lattice_beam = lattice_beam;
         decodable_opts.acoustic_scale              = acoustic_scale;
+        decodable_opts.frame_subsampling_factor    = frame_subsampling_factor;
 
         feature_info = new OnlineNnet2FeaturePipelineInfo(this->feature_config);
 
