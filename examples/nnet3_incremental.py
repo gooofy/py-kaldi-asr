@@ -32,58 +32,57 @@ from time import time
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
-if __name__ == "__main__":
+MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-latest'
+MODEL       = 'nnet_tdnn_a'
+WAVFILE     = 'data/gsp1.wav'
 
-    MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-latest'
-    MODEL       = 'nnet_tdnn_a'
-    WAVFILE     = 'data/gsp1.wav'
+print '%s loading model...' % MODEL
+time_start = time()
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR, MODEL)
+print '%s loading model... done, took %fs.' % (MODEL, time()-time_start)
 
-    print '%s loading model...' % MODEL
-    kaldi_model = KaldiNNet3OnlineModel (MODELDIR, MODEL)
-    print '%s loading model... done.' % MODEL
+decoder = KaldiNNet3OnlineDecoder (kaldi_model)
 
-    decoder = KaldiNNet3OnlineDecoder (kaldi_model)
-    
-    time_start = time()
+time_start = time()
 
-    wavf = wave.open(WAVFILE, 'rb')
+wavf = wave.open(WAVFILE, 'rb')
 
-    # check format
-    assert wavf.getnchannels()==1
-    assert wavf.getsampwidth()==2
+# check format
+assert wavf.getnchannels()==1
+assert wavf.getsampwidth()==2
 
-    # process file in 250ms chunks
+# process file in 250ms chunks
 
-    chunk_frames = 250 * wavf.getframerate() / 1000
-    tot_frames   = wavf.getnframes()
+chunk_frames = 250 * wavf.getframerate() / 1000
+tot_frames   = wavf.getnframes()
 
-    num_frames = 0
-    while num_frames < tot_frames:
+num_frames = 0
+while num_frames < tot_frames:
 
-        finalize = False
-        if (num_frames + chunk_frames) < tot_frames:
-            nframes = chunk_frames
-        else:
-            nframes = tot_frames - num_frames
-            finalize = True
+    finalize = False
+    if (num_frames + chunk_frames) < tot_frames:
+        nframes = chunk_frames
+    else:
+        nframes = tot_frames - num_frames
+        finalize = True
 
-        frames = wavf.readframes(nframes)
-        num_frames += nframes
-        samples = struct.unpack_from('<%dh' % nframes, frames)
+    frames = wavf.readframes(nframes)
+    num_frames += nframes
+    samples = struct.unpack_from('<%dh' % nframes, frames)
 
-        decoder.decode(wavf.getframerate(), np.array(samples, dtype=np.float32), finalize)
+    decoder.decode(wavf.getframerate(), np.array(samples, dtype=np.float32), finalize)
 
-        print "%6.3fs: %5d frames (%6.3fs) decoded." % (time()-time_start, num_frames, float(num_frames) / float(wavf.getframerate()) )
+    print "%6.3fs: %5d frames (%6.3fs) decoded." % (time()-time_start, num_frames, float(num_frames) / float(wavf.getframerate()) )
 
-    wavf.close()
+wavf.close()
 
-    s, l = decoder.get_decoded_string()
-    print
-    print "*****************************************************************"
-    print "**", WAVFILE
-    print "**", s
-    print "** %s likelihood:" % MODEL, l
-    print "*****************************************************************"
-    print
-    print "%s decoding took %8.2fs" % (MODEL, time() - time_start )
+s, l = decoder.get_decoded_string()
+print
+print "*****************************************************************"
+print "**", WAVFILE
+print "**", s
+print "** %s likelihood:" % MODEL, l
+print "*****************************************************************"
+print
+print "%s decoding took %8.2fs" % (MODEL, time() - time_start )
 
