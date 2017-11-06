@@ -51,6 +51,13 @@ namespace kaldi {
     }
 
     void NNet3OnlineDecoderWrapper::start_decoding(void) {
+#if VERBOSE
+        KALDI_LOG << "start_decoding..." ;
+        KALDI_LOG << "max_active  :" << model->lattice_faster_decoder_config.max_active;
+        KALDI_LOG << "min_active  :" << model->lattice_faster_decoder_config.min_active;
+        KALDI_LOG << "beam        :" << model->lattice_faster_decoder_config.beam;
+        KALDI_LOG << "lattice_beam:" << model->lattice_faster_decoder_config.lattice_beam;
+#endif
         free_decoder();
         adaptation_state  = new OnlineIvectorExtractorAdaptationState (model->feature_info->ivector_extractor_info);
         feature_pipeline  = new OnlineNnet2FeaturePipeline (*model->feature_info);
@@ -65,6 +72,9 @@ namespace kaldi {
                                                              *decodable_nnet_simple_looped_info,
                                                              *model->decode_fst,
                                                              feature_pipeline);
+#if VERBOSE
+        KALDI_LOG << "start_decoding...done" ;
+#endif
     }
 
     void NNet3OnlineDecoderWrapper::free_decoder(void) {
