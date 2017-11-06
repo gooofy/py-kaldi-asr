@@ -27,7 +27,7 @@
 #include "lat/lattice-functions.h"
 #include "lat/word-align-lattice-lexicon.h"
 
-#define VERBOSE 0
+#define VERBOSE 1
 
 namespace kaldi {
 
@@ -44,10 +44,37 @@ namespace kaldi {
 
         tot_frames                        = 0;
         tot_frames_decoded                = 0;
+
+#if VERBOSE
+        KALDI_LOG << "alloc: OnlineIvectorExtractorAdaptationState";
+#endif
+        adaptation_state  = new OnlineIvectorExtractorAdaptationState (model->feature_info->ivector_extractor_info);
+
+#if VERBOSE
+        KALDI_LOG << "alloc: OnlineSilenceWeighting";
+#endif
+        silence_weighting = new OnlineSilenceWeighting (model->trans_model, model->feature_info->silence_weighting_config);
+        
+#if VERBOSE
+        KALDI_LOG << "alloc: nnet3::DecodableNnetSimpleLoopedInfo";
+#endif
+        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(model->decodable_opts, &model->am_nnet);
     }
 
     NNet3OnlineDecoderWrapper::~NNet3OnlineDecoderWrapper() {
         free_decoder();
+        if (silence_weighting) {
+            delete silence_weighting ;
+            silence_weighting = NULL;
+        }
+        if (adaptation_state) {
+            delete adaptation_state ;
+            adaptation_state = NULL;
+        }
+        if (decodable_nnet_simple_looped_info) {
+            delete decodable_nnet_simple_looped_info;
+            decodable_nnet_simple_looped_info = NULL;
+        }
     }
 
     void NNet3OnlineDecoderWrapper::start_decoding(void) {
@@ -59,14 +86,14 @@ namespace kaldi {
         KALDI_LOG << "lattice_beam:" << model->lattice_faster_decoder_config.lattice_beam;
 #endif
         free_decoder();
-        adaptation_state  = new OnlineIvectorExtractorAdaptationState (model->feature_info->ivector_extractor_info);
+#if VERBOSE
+        KALDI_LOG << "alloc: OnlineNnet2FeaturePipeline";
+#endif
         feature_pipeline  = new OnlineNnet2FeaturePipeline (*model->feature_info);
         feature_pipeline->SetAdaptationState(*adaptation_state);
-
-        silence_weighting = new OnlineSilenceWeighting (model->trans_model, model->feature_info->silence_weighting_config);
-        
-        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(model->decodable_opts, &model->am_nnet);
-
+#if VERBOSE
+        KALDI_LOG << "alloc: SingleUtteranceNnet3Decoder";
+#endif
         decoder           = new SingleUtteranceNnet3Decoder (model->lattice_faster_decoder_config,
                                                              model->trans_model,
                                                              *decodable_nnet_simple_looped_info,
@@ -79,24 +106,15 @@ namespace kaldi {
 
     void NNet3OnlineDecoderWrapper::free_decoder(void) {
         if (decoder) {
+#if VERBOSE
+            KALDI_LOG << "free_decoder";
+#endif
             delete decoder ;
             decoder = NULL;
-        }
-        if (silence_weighting) {
-            delete silence_weighting ;
-            silence_weighting = NULL;
         }
         if (feature_pipeline) {
             delete feature_pipeline ; 
             feature_pipeline = NULL;
-        }
-        if (adaptation_state) {
-            delete adaptation_state ;
-            adaptation_state = NULL;
-        }
-        if (decodable_nnet_simple_looped_info) {
-            delete decodable_nnet_simple_looped_info;
-            decodable_nnet_simple_looped_info = NULL;
         }
     }
 
@@ -195,6 +213,9 @@ namespace kaldi {
         }
         tot_frames += num_frames;
 
+#if VERBOSE
+        KALDI_LOG << "AcceptWaveform...";
+#endif
         feature_pipeline->AcceptWaveform(samp_freq, wave_part);
 
         if (finalize) {
