@@ -27,7 +27,7 @@
 #include "lat/lattice-functions.h"
 #include "lat/word-align-lattice-lexicon.h"
 
-#define VERBOSE 1
+#define VERBOSE 0
 
 namespace kaldi {
 
