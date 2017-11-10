@@ -2,7 +2,7 @@
 # distutils: sources = nnet3.cpp
 
 #
-# Copyright 2016 G. Bartsch
+# Copyright 2016, 2017 G. Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ cdef extern from "nnet3_wrappers.h" namespace "kaldi":
 
     cdef cppclass NNet3OnlineModelWrapper:
         NNet3OnlineModelWrapper() except +
-        NNet3OnlineModelWrapper(float, int, int, float, float, float, string, string, string, string, string, string) except +
+        NNet3OnlineModelWrapper(float, int, int, float, float, int, string, string, string, string, string, string) except +
 
     cdef cppclass NNet3OnlineDecoderWrapper:
         NNet3OnlineDecoderWrapper() except +
@@ -55,7 +55,7 @@ cdef class KaldiNNet3OnlineModel:
                         int    min_active               = 200,
                         float  lattice_beam             = 8.0, 
                         float  acoustic_scale           = 0.1, 
-                        float  frame_subsampling_factor = 1.0, 
+                        int    frame_subsampling_factor = 1, 
 
                         int    num_gselect              = 5,
                         float  min_post                 = 0.025,
