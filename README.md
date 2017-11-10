@@ -60,6 +60,9 @@ Requirements
 Setup Notes
 ===========
 
+Source
+------
+
 At the time of this writing kaldi-asr does not seem to have an official way to
 install it on a system. 
 
@@ -79,6 +82,15 @@ Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
 ```
 
 make sure `kaldi_root` points to wherever your kaldi checkout lives in your filesystem.
+
+RHEL / CentOS 7 RPMs
+--------------------
+
+If you happen to run RHEL or CentOS 7 on x86\_64 or armv7hl (Raspberry Pi 3) and
+would like to install just the kaldi-asr libraries and headers, you can use my
+(totally unoffical) kaldi-asr RPMs which you can download here:
+
+http://goofy.zamia.org/rpms/kaldi-asr-5.2/
 
 License
 =======
