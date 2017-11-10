@@ -26,6 +26,7 @@
 
 #include "lat/lattice-functions.h"
 #include "lat/word-align-lattice-lexicon.h"
+#include "nnet3/nnet-utils.h"
 
 #define VERBOSE 0
 
@@ -36,14 +37,14 @@ namespace kaldi {
      */
 
     NNet3OnlineDecoderWrapper::NNet3OnlineDecoderWrapper(NNet3OnlineModelWrapper *aModel) : model(aModel) {
-        decoder                           = NULL;
-        silence_weighting                 = NULL;
-        feature_pipeline                  = NULL;
-        adaptation_state                  = NULL;
-        decodable_nnet_simple_looped_info = NULL;
+        decoder            = NULL;
+        silence_weighting  = NULL;
+        feature_pipeline   = NULL;
+        adaptation_state   = NULL;
+        decodable_info     = NULL;
 
-        tot_frames                        = 0;
-        tot_frames_decoded                = 0;
+        tot_frames         = 0;
+        tot_frames_decoded = 0;
 
 #if VERBOSE
         KALDI_LOG << "alloc: OnlineIvectorExtractorAdaptationState";
@@ -53,12 +54,14 @@ namespace kaldi {
 #if VERBOSE
         KALDI_LOG << "alloc: OnlineSilenceWeighting";
 #endif
-        silence_weighting = new OnlineSilenceWeighting (model->trans_model, model->feature_info->silence_weighting_config);
+        silence_weighting = new OnlineSilenceWeighting (model->trans_model, 
+                                                        model->feature_info->silence_weighting_config,
+                                                        model->decodable_opts.frame_subsampling_factor);
         
 #if VERBOSE
         KALDI_LOG << "alloc: nnet3::DecodableNnetSimpleLoopedInfo";
 #endif
-        decodable_nnet_simple_looped_info = new nnet3::DecodableNnetSimpleLoopedInfo(model->decodable_opts, &model->am_nnet);
+        decodable_info = new nnet3::DecodableNnetSimpleLoopedInfo(model->decodable_opts, &model->am_nnet);
     }
 
     NNet3OnlineDecoderWrapper::~NNet3OnlineDecoderWrapper() {
@@ -71,9 +74,9 @@ namespace kaldi {
             delete adaptation_state ;
             adaptation_state = NULL;
         }
-        if (decodable_nnet_simple_looped_info) {
-            delete decodable_nnet_simple_looped_info;
-            decodable_nnet_simple_looped_info = NULL;
+        if (decodable_info) {
+            delete decodable_info;
+            decodable_info = NULL;
         }
     }
 
@@ -89,7 +92,7 @@ namespace kaldi {
 #endif
         decoder           = new SingleUtteranceNnet3Decoder (model->lattice_faster_decoder_config,
                                                              model->trans_model,
-                                                             *decodable_nnet_simple_looped_info,
+                                                             *decodable_info,
                                                              *model->decode_fst,
                                                              feature_pipeline);
     }
@@ -119,9 +122,10 @@ namespace kaldi {
         std::vector<int32> words;
         std::vector<int32> alignment;
         LatticeWeight      weight;
+        int32              num_frames;
         GetLinearSymbolSequence(best_path_lat, &alignment, &words, &weight);
-
-        likelihood = -(weight.Value1() + weight.Value2()) / (double) tot_frames_decoded;
+        num_frames = alignment.size();
+        likelihood = -(weight.Value1() + weight.Value2()) / num_frames;
                    
         decoded_string = "";
 
@@ -229,8 +233,6 @@ namespace kaldi {
             bool end_of_utterance = true;
             decoder->GetLattice(end_of_utterance, &clat);
 
-            //GetDiagnosticsAndPrintOutput(utt, word_syms, clat, &num_frames, &tot_like);
-
             if (clat.NumStates() == 0) {
               KALDI_WARN << "Empty lattice.";
               return false;
@@ -265,7 +267,7 @@ namespace kaldi {
                                                      int32        min_active,
                                                      BaseFloat    lattice_beam,
                                                      BaseFloat    acoustic_scale, 
-                                                     BaseFloat    frame_subsampling_factor,
+                                                     int32        frame_subsampling_factor,
                                                      std::string &word_syms_filename, 
                                                      std::string &model_in_filename,
                                                      std::string &fst_in_str,
@@ -310,11 +312,13 @@ namespace kaldi {
             Input ki(model_in_filename, &binary);
             this->trans_model.Read(ki.Stream(), binary);
             this->am_nnet.Read(ki.Stream(), binary);
+            SetBatchnormTestMode(true, &(this->am_nnet.GetNnet()));
+            SetDropoutTestMode(true, &(this->am_nnet.GetNnet()));
+            nnet3::CollapseModel(nnet3::CollapseModelConfig(), &(this->am_nnet.GetNnet()));
         }
 
         // Input FST is just one FST, not a table of FSTs.
-        // decode_fst = CastOrConvertToVectorFst(fst::ReadFstKaldiGeneric(fst_in_str));
-        decode_fst = fst::ReadFstKaldi(fst_in_str);
+        decode_fst = fst::ReadFstKaldiGeneric(fst_in_str);
 
         word_syms = NULL;
         if (word_syms_filename != "") 
@@ -337,7 +341,6 @@ namespace kaldi {
     }
 
     NNet3OnlineModelWrapper::~NNet3OnlineModelWrapper() {
-        // FIXME: memleaks?
         delete feature_info;
     }
 

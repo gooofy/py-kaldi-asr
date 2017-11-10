@@ -42,7 +42,7 @@ namespace kaldi {
                                 int32        min_active,
                                 BaseFloat    lattice_beam,
                                 BaseFloat    acoustic_scale, 
-                                BaseFloat    frame_subsampling_factor, 
+                                int32        frame_subsampling_factor, 
                                 std::string &word_syms_filename, 
                                 std::string &model_in_filename,
                                 std::string &fst_in_str,
@@ -67,7 +67,8 @@ namespace kaldi {
         nnet3::NnetSimpleLoopedComputationOptions  decodable_opts;
 
         TransitionModel                            trans_model;
-        fst::VectorFst<fst::StdArc>               *decode_fst;
+        //fst::VectorFst<fst::StdArc>               *decode_fst;
+        fst::Fst<fst::StdArc>                     *decode_fst;
         std::string                               *ie_conf_filename;
 
         // word alignment:
@@ -101,7 +102,7 @@ namespace kaldi {
         OnlineIvectorExtractorAdaptationState     *adaptation_state;
         OnlineNnet2FeaturePipeline                *feature_pipeline;
         OnlineSilenceWeighting                    *silence_weighting;
-        nnet3::DecodableNnetSimpleLoopedInfo      *decodable_nnet_simple_looped_info;
+        nnet3::DecodableNnetSimpleLoopedInfo      *decodable_info;
         SingleUtteranceNnet3Decoder               *decoder;
 
         std::vector<std::pair<int32, BaseFloat> >  delta_weights;
