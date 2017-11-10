@@ -41,7 +41,7 @@ else:
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.1.2',
+    version              = '0.2.0',
     description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
@@ -49,7 +49,6 @@ setup(
     maintainer           = 'Guenter Bartsch',
     maintainer_email     = 'guenter@zamia.org',
     url                  = 'https://github.com/gooofy/py-kaldi-asr',
-    # download_url         = 'https://pypi.python.org/pypi/kaldiasr',
     packages             = ['kaldiasr'],
     cmdclass             = cmdclass,
     ext_modules          = ext_modules,
