@@ -35,9 +35,11 @@ from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 # this is useful for benchmarking purposes
 NUM_DECODER_RUNS = 1
 
-MODELDIR    = 'data/models/kaldi-chain-voxforge-de-latest'
+MODELDIR    = 'data/models/kaldi-chain-voxforge-en-latest'
+# MODELDIR    = 'data/models/kaldi-chain-voxforge-de-latest'
 MODEL       = 'tdnn_sp'
-WAVFILE     = 'data/gsp1.wav'
+WAVFILE     = 'data/dw961.wav'
+# WAVFILE     = 'data/gsp1.wav'
 
 print '%s loading model...' % MODEL
 time_start = time()
