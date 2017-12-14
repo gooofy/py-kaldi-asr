@@ -59,7 +59,7 @@ def find_dependencies(**kw):
     for token in output.split():
     	kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
    
-	print repr(kw)
+	# print repr(kw)
  
     return kw
 
@@ -78,7 +78,7 @@ cmdclass.update({ 'build_ext': build_ext })
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.2.0',
+    version              = '0.2.1',
     description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
