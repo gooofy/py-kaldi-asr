@@ -1,6 +1,7 @@
+from __future__ import print_function
 from setuptools import setup, Extension
 import numpy
-import commands
+import subprocess
 import sys
 import os
 
@@ -12,7 +13,14 @@ except ImportError:
 cmdclass = { }
 ext_modules = [ ]
 
-def find_dependencies(**kw):
+def getstatusoutput(command):
+    process = subprocess.Popen(command, stdout=subprocess.PIPE)
+    out, _ = process.communicate()
+    return (process.returncode, out)
+
+def find_dependencies():
+
+    kw = {}
 
     flag_map = {'-I': 'include_dirs', '-L': 'library_dirs', '-l': 'libraries'}
     
@@ -20,9 +28,13 @@ def find_dependencies(**kw):
     # find atlas library (try pkgconfig, if that fails look at usual places)
     #
 
-    status, output = commands.getstatusoutput("pkg-config --libs --cflags atlas")
+    print ("looking for atlas library, trying pkg-config first...")
+
+    status, output = getstatusoutput(["pkg-config", "--libs", "--cflags", "atlas"])
 
     if status != 0:
+
+        print ("looking for atlas library, trying hard-coded paths...")
 
         found = False
         
@@ -43,23 +55,35 @@ def find_dependencies(**kw):
         
         kw.setdefault('include_dirs', []).append('/usr/include/atlas')
 
+        print ("looking for atlas library, found it.")
     else:
-    	for token in output.split():
-    		kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
+        print ("looking for atlas library, pkg-config found it")
+        for token in output.split():
+            token = token.decode('utf8')
+            kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
     
     #
     # pkgconfig: kaldi-asr
     #
     
-    status, output = commands.getstatusoutput("pkg-config --libs --cflags kaldi-asr")
+    status, output = getstatusoutput(["pkg-config", "--libs", "--cflags", "kaldi-asr"])
     
     if status != 0:
     	raise Exception("*** failed to find pkgconfig for kaldi-asr")
     
     for token in output.split():
-    	kw.setdefault(flag_map.get(token[:2]), []).append(token[2:])
+
+        token = token.decode('utf8')
+
+        prefix = token[:2]
+        arg    = token[2:]
+
+        # print(repr(token))
+        # print(repr(prefix))
+
+        kw.setdefault(flag_map.get(prefix), []).append(arg)
    
-	# print repr(kw)
+    # print (repr(kw))
  
     return kw
 
