@@ -1,6 +1,6 @@
 # py-kaldi-asr
 
-Some simple wrappers around kaldi-asr intended to make using kaldi's (online, nnet3)
+Some simple wrappers around kaldi-asr intended to make using kaldi's (online, nnet3, chain)
 decoders as convenient as possible. 
 
 Target audience are developers who would like to use kaldi-asr as-is for speech
@@ -52,7 +52,7 @@ Links
 Requirements
 ============
 
-* Python 2.7
+* Python 2.7 or 3.5
 * NumPy
 * Cython
 * [kaldi-asr 5.2](http://kaldi-asr.org/ "kaldi-asr.org")

@@ -102,7 +102,7 @@ cmdclass.update({ 'build_ext': build_ext })
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.2.2',
+    version              = '0.2.3',
     description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
@@ -119,6 +119,8 @@ setup(
                                'License :: OSI Approved :: Apache Software License',
                                'Programming Language :: Python :: 2',
                                'Programming Language :: Python :: 2.7',
+                               'Programming Language :: Python :: 3',
+                               'Programming Language :: Python :: 3.5',
                                'Programming Language :: Cython',
                                'Programming Language :: C++',
                                'Intended Audience :: Developers',
