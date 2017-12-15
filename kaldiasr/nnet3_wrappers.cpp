@@ -127,8 +127,24 @@ namespace kaldi {
         //double                                     likelihood;
 
         Lattice best_path_lat;
-        ConvertLattice(best_path_clat, &best_path_lat);
-        
+
+        decoded_string = "";
+
+        if (decoder) {
+
+            // decoding is not finished yet, so we will look up the best partial result so far
+
+            if (decoder->NumFramesDecoded() == 0) {
+                likelihood = 0.0;
+                return;
+            }
+
+            decoder->GetBestPath(false, &best_path_lat);
+
+        } else {
+            ConvertLattice(best_path_clat, &best_path_lat);
+        }
+            
         std::vector<int32> words;
         std::vector<int32> alignment;
         LatticeWeight      weight;
@@ -137,8 +153,6 @@ namespace kaldi {
         num_frames = alignment.size();
         likelihood = -(weight.Value1() + weight.Value2()) / num_frames;
                    
-        decoded_string = "";
-
         for (size_t i = 0; i < words.size(); i++) {
             std::string s = model->word_syms->Find(words[i]);
             if (s == "")

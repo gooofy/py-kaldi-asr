@@ -83,7 +83,9 @@ for i in range(NUM_DECODER_RUNS):
 
         decoder.decode(wavf.getframerate(), np.array(samples, dtype=np.float32), finalize)
 
-        print "%6.3fs: %5d frames (%6.3fs) decoded." % (time()-time_start, num_frames, float(num_frames) / float(wavf.getframerate()) )
+        s, l = decoder.get_decoded_string()
+
+        print "%6.3fs: %5d frames (%6.3fs) decoded. %s" % (time()-time_start, num_frames, float(num_frames) / float(wavf.getframerate()), s)
 
     wavf.close()
 
