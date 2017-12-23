@@ -25,6 +25,7 @@ import numpy as np
 cimport numpy as cnp
 import struct
 import wave
+import os
 from tempfile import NamedTemporaryFile
 
 cdef extern from "nnet3_wrappers.h" namespace "kaldi":
@@ -74,6 +75,16 @@ cdef class KaldiNNet3OnlineModel:
         cdef string align_lex_filename    = '%s/%s/align_lexicon.int'   % (self.modeldir, self.model)
 
         #
+        # make sure all model files required exist
+        #
+
+        for conff in [mfcc_config, word_symbol_table, model_in_filename, splice_conf_filename, fst_in_str, align_lex_filename]:
+            if not os.path.isfile(conff): 
+                raise Exception ('%s not found.' % conff)
+            if not os.access(conff, os.R_OK):
+                raise Exception ('%s is not readable' % conff) 
+
+        #
         # generate ivector_extractor.conf
         #
 
@@ -111,8 +122,10 @@ cdef class KaldiNNet3OnlineModel:
                                                          align_lex_filename)
 
     def __dealloc__(self):
-        self.ie_conf_f.close()
-        del self.model_wrapper
+        if self.ie_conf_f:
+            self.ie_conf_f.close()
+        if self.model_wrapper:
+            del self.model_wrapper
 
 cdef class KaldiNNet3OnlineDecoder:
 
