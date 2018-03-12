@@ -38,7 +38,7 @@ def find_dependencies():
 
         found = False
         
-        for libdir in ['/usr/lib', '/usr/lib64']:
+        for libdir in ['/usr/lib', '/usr/lib64', '/usr/lib/x86_64-linux-gnu', '/usr/lib/i386-linux-gnu']:
         	if os.path.isfile('%s/libatlas.so.3' % libdir):
         		found=True
         		break
@@ -102,7 +102,7 @@ cmdclass.update({ 'build_ext': build_ext })
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.2.4',
+    version              = '0.2.5',
     description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
