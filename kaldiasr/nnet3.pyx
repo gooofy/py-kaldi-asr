@@ -172,6 +172,7 @@ cdef class KaldiNNet3OnlineDecoder:
         # check format
         assert wavf.getnchannels()==1
         assert wavf.getsampwidth()==2
+        assert wavf.getnframes()>0
 
         # read the whole file into memory, for now
         num_frames = wavf.getnframes()
