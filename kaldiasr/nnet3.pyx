@@ -2,7 +2,7 @@
 # distutils: sources = nnet3.cpp
 
 #
-# Copyright 2016, 2017 G. Bartsch
+# Copyright 2016, 2017, 2018 G. Bartsch
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,7 +50,7 @@ cdef class KaldiNNet3OnlineModel:
     cdef object                   ie_conf_f
 
     def __cinit__(self, string modeldir, 
-                        string model,
+                        string model                    = 'model',
                         float  beam                     = 15.0,
                         int    max_active               = 7000,
                         int    min_active               = 200,

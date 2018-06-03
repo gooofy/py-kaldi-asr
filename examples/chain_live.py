@@ -41,9 +41,8 @@ DEFAULT_SOURCE                   = 'CM108'
 DEFAULT_VOLUME                   = 150
 DEFAULT_AGGRESSIVENESS           = 2
 
-DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-chain-voxforge-de'
-# DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-chain-voxforge-en'
-DEFAULT_MODEL                    = 'tdnn_250'
+DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-de-tdnn_sp-latest'
+# DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-en-tdnn_sp-latest'
 DEFAULT_ACOUSTIC_SCALE           = 1.0
 DEFAULT_BEAM                     = 7.0
 DEFAULT_FRAME_SUBSAMPLING_FACTOR = 3
@@ -109,7 +108,7 @@ vad = VAD(aggressiveness=aggressiveness, sample_rate=SAMPLE_RATE)
 
 print "Loading model from %s ..." % model_dir
 
-asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = model_dir, model_name = DEFAULT_MODEL,
+asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = model_dir,
           kaldi_beam = DEFAULT_BEAM, kaldi_acoustic_scale = DEFAULT_ACOUSTIC_SCALE,
           kaldi_frame_subsampling_factor = DEFAULT_FRAME_SUBSAMPLING_FACTOR)
 

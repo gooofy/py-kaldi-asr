@@ -32,22 +32,21 @@ from time import time
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
-# MODELDIR    = 'data/models/kaldi-chain-generic-en-latest'
-MODELDIR    = 'data/models/kaldi-chain-generic-de-latest'
-MODEL       = 'tdnn_sp'
-# WAVFILE     = 'data/dw961.wav'
-WAVFILE     = 'data/fail1.wav'
+MODELDIR    = 'data/models/kaldi-generic-en-tdnn_sp-latest'
+# MODELDIR    = 'data/models/kaldi-generic-de-tdnn_sp-latest'
+WAVFILE     = 'data/dw961.wav'
+# WAVFILE     = 'data/fail1.wav'
 # WAVFILE     = 'data/gsp1.wav'
 
-print '%s loading model...' % MODEL
+print '%s loading model...' % MODELDIR
 time_start = time()
-kaldi_model = KaldiNNet3OnlineModel (MODELDIR, MODEL, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
-print '%s loading model... done, took %fs.' % (MODEL, time()-time_start)
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
+print '%s loading model... done, took %fs.' % (MODELDIR, time()-time_start)
 
-print '%s creating decoder...' % MODEL
+print '%s creating decoder...' % MODELDIR
 time_start = time()
 decoder = KaldiNNet3OnlineDecoder (kaldi_model)
-print '%s creating decoder... done, took %fs.' % (MODEL, time()-time_start)
+print '%s creating decoder... done, took %fs.' % (MODELDIR, time()-time_start)
 
 time_start = time()
 
@@ -59,10 +58,10 @@ if decoder.decode_wav_file(WAVFILE):
     print "*****************************************************************"
     print "**", WAVFILE
     print "**", s
-    print "** %s likelihood:" % MODEL, l
+    print "** %s likelihood:" % MODELDIR, l
     print "*****************************************************************"
     print
-    print "%s decoding took %8.2fs" % (MODEL, time() - time_start )
+    print "%s decoding took %8.2fs" % (MODELDIR, time() - time_start )
 
 else:
 
