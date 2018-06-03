@@ -41,8 +41,8 @@ DEFAULT_SOURCE                   = 'CM108'
 DEFAULT_VOLUME                   = 150
 DEFAULT_AGGRESSIVENESS           = 2
 
-DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-de-tdnn_sp-latest'
-# DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-en-tdnn_sp-latest'
+DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-de-tdnn_250-latest'
+# DEFAULT_MODEL_DIR                = '/opt/kaldi/model/kaldi-generic-en-tdnn_250-latest'
 DEFAULT_ACOUSTIC_SCALE           = 1.0
 DEFAULT_BEAM                     = 7.0
 DEFAULT_FRAME_SUBSAMPLING_FACTOR = 3
