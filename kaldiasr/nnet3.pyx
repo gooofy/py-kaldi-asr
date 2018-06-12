@@ -67,12 +67,12 @@ cdef class KaldiNNet3OnlineModel:
         self.modeldir         = modeldir
         self.model            = model
 
-        cdef string mfcc_config           = '%s/conf/mfcc-hires.conf'   % self.modeldir
-        cdef string word_symbol_table     = '%s/%s/words.txt'           % (self.modeldir, self.model)
-        cdef string model_in_filename     = '%s/%s/final.mdl'           % (self.modeldir, self.model)
-        cdef string splice_conf_filename  = '%s/extractor/splice.conf'  % self.modeldir
-        cdef string fst_in_str            = '%s/%s/HCLG.fst'            % (self.modeldir, self.model)
-        cdef string align_lex_filename    = '%s/%s/align_lexicon.int'   % (self.modeldir, self.model)
+        cdef string mfcc_config           = '%s/conf/mfcc_hires.conf'                  % self.modeldir
+        cdef string word_symbol_table     = '%s/%s/graph/words.txt'                    % (self.modeldir, self.model)
+        cdef string model_in_filename     = '%s/%s/final.mdl'                          % (self.modeldir, self.model)
+        cdef string splice_conf_filename  = '%s/ivectors_test_hires/conf/splice.conf'  % self.modeldir
+        cdef string fst_in_str            = '%s/%s/graph/HCLG.fst'                     % (self.modeldir, self.model)
+        cdef string align_lex_filename    = '%s/%s/graph/phones/align_lexicon.int'     % (self.modeldir, self.model)
 
         #
         # make sure all model files required exist
