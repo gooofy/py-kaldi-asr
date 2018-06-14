@@ -67,7 +67,7 @@ cdef class KaldiNNet3OnlineModel:
         self.modeldir         = modeldir
         self.model            = model
 
-        cdef string mfcc_config           = '%s/conf/mfcc-hires.conf'   % self.modeldir
+        cdef string mfcc_config           = '%s/conf/mfcc_hires.conf'   % self.modeldir
         cdef string word_symbol_table     = '%s/%s/words.txt'           % (self.modeldir, self.model)
         cdef string model_in_filename     = '%s/%s/final.mdl'           % (self.modeldir, self.model)
         cdef string splice_conf_filename  = '%s/extractor/splice.conf'  % self.modeldir
