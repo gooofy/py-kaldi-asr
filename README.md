@@ -8,46 +8,47 @@ recognition in their application on GNU/Linux operating systems.
 
 Constructive comments, patches and pull-requests are very welcome.
 
-Example
-=======
+Getting Started
+===============
+
+We recommend using pre-trained modules from the [zamia-speech](http://zamia-speech.org/) project
+to get started. There you will also find a tutorial complete with links to pre-built binary packages
+to get you up and running with free and open source speech recognition in a matter of minutes:
+
+[Zamia Speech Tutorial](https://github.com/gooofy/zamia-speech#get-started-with-our-pre-trained-models)
+
+Example Code
+------------
 
 Simple wav file decoding:
 
 ```python
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
-MODELDIR    = 'data/models/kaldi-nnet3-voxforge-de-r20161117'
-MODEL       = 'nnet_tdnn_a'
-WAVFILE     = 'data/single.wav'
+MODELDIR    = 'data/models/kaldi-generic-en-tdnn_sp-latest'
+WAVFILE     = 'data/dw961.wav'
 
-model   = KaldiNNet3OnlineModel   (MODELDIR, MODEL)
-decoder = KaldiNNet3OnlineDecoder (model)
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
+decoder     = KaldiNNet3OnlineDecoder (kaldi_model)
 
 if decoder.decode_wav_file(WAVFILE):
 
-    print '%s decoding worked!' % model
-
     s, l = decoder.get_decoded_string()
+
     print
     print "*****************************************************************"
+    print "**", WAVFILE
     print "**", s
-    print "** %s likelihood:" % model, l
+    print "** %s likelihood:" % MODELDIR, l
     print "*****************************************************************"
     print
 
 else:
-    print '%s decoding did not work :(' % model
 
+    print "***ERROR: decoding of %s failed." % WAVFILE
 ```
 
 Please check the examples directory for more example code.
-
-Links
-=====
-
-* [Data / Models](http://goofy.zamia.org/voxforge/ "models")
-
-* [Code](https://github.com/gooofy/py-kaldi-asr "github")
 
 Requirements
 ============
@@ -55,7 +56,7 @@ Requirements
 * Python 2.7 or 3.5
 * NumPy
 * Cython
-* [kaldi-asr 5.2](http://kaldi-asr.org/ "kaldi-asr.org")
+* [kaldi-asr](http://kaldi-asr.org/ "kaldi-asr.org")
 
 Setup Notes
 ===========
@@ -82,15 +83,6 @@ Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
 ```
 
 make sure `kaldi_root` points to wherever your kaldi checkout lives in your filesystem.
-
-RHEL / CentOS 7 RPMs
---------------------
-
-If you happen to run RHEL or CentOS 7 on x86\_64 or armv7hl (Raspberry Pi 3) and
-would like to install just the kaldi-asr libraries and headers, you can use my
-(totally unoffical) kaldi-asr RPMs which you can download here:
-
-http://goofy.zamia.org/rpms/kaldi-asr-5.2/
 
 License
 =======
