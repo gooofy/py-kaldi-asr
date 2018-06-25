@@ -17,18 +17,10 @@
 # See the Apache 2 License for the specific language governing permissions and
 # limitations under the License.
 #
-#
-# slightly more advanced demonstration program for kaldiasr online nnet3 
-# decoding where we stream audio frames incrementally to the decoder
-#
 
-import sys
-import os
-import wave
-import struct
-import numpy as np
-
-from time import time
+#
+# very simple single WAV file speech recognition (decoding) example 
+#
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
@@ -38,17 +30,8 @@ WAVFILE     = 'data/dw961.wav'
 # WAVFILE     = 'data/fail1.wav'
 # WAVFILE     = 'data/gsp1.wav'
 
-print '%s loading model...' % MODELDIR
-time_start = time()
 kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
-print '%s loading model... done, took %fs.' % (MODELDIR, time()-time_start)
-
-print '%s creating decoder...' % MODELDIR
-time_start = time()
-decoder = KaldiNNet3OnlineDecoder (kaldi_model)
-print '%s creating decoder... done, took %fs.' % (MODELDIR, time()-time_start)
-
-time_start = time()
+decoder     = KaldiNNet3OnlineDecoder (kaldi_model)
 
 if decoder.decode_wav_file(WAVFILE):
 
@@ -61,7 +44,6 @@ if decoder.decode_wav_file(WAVFILE):
     print "** %s likelihood:" % MODELDIR, l
     print "*****************************************************************"
     print
-    print "%s decoding took %8.2fs" % (MODELDIR, time() - time_start )
 
 else:
 
