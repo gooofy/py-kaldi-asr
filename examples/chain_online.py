@@ -36,7 +36,7 @@ MODELDIR    = 'data/models/kaldi-generic-de-tdnn_sp-latest'
 WAVFILES    = [ 'data/single.wav', 'data/gsp1.wav']
 
 print '%s loading model...' % MODELDIR
-kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR)
 print '%s loading model... done.' % MODELDIR
 
 decoder = KaldiNNet3OnlineDecoder (kaldi_model)

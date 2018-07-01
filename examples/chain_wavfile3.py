@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*- 
 
 #
@@ -21,6 +21,8 @@
 #
 # very simple single WAV file speech recognition (decoding) example 
 #
+# Python 3 version
+#
 
 from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 
@@ -30,26 +32,22 @@ WAVFILE     = 'data/dw961.wav'
 # WAVFILE     = 'data/fail1.wav'
 # WAVFILE     = 'data/gsp1.wav'
 
-print "Loading model from %s ..." % MODELDIR
-
-kaldi_model = KaldiNNet3OnlineModel (MODELDIR)
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
 decoder     = KaldiNNet3OnlineDecoder (kaldi_model)
-
-print "Decoding %s ..." % WAVFILE
 
 if decoder.decode_wav_file(WAVFILE):
 
     s, l = decoder.get_decoded_string()
 
-    print
-    print u"*****************************************************************"
-    print u"** %s" % WAVFILE
-    print u"** %s" % s
-    print u"** likelihood: %f" % l
-    print u"*****************************************************************"
-    print
+    print()
+    print("*****************************************************************")
+    print("** %s" % WAVFILE)
+    print("** %s" % s)
+    print("** %s likelihood: %f" % (MODELDIR, l))
+    print("*****************************************************************")
+    print()
 
 else:
 
-    print "***ERROR: decoding of %s failed." % WAVFILE
+    print("***ERROR: decoding of %s failed." % WAVFILE)
 

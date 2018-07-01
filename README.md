@@ -1,6 +1,6 @@
 # py-kaldi-asr
 
-Some simple wrappers around kaldi-asr intended to make using kaldi's (online, nnet3, chain)
+Some simple wrappers around kaldi-asr intended to make using kaldi's online nnet3-chain
 decoders as convenient as possible. 
 
 Target audience are developers who would like to use kaldi-asr as-is for speech
@@ -28,7 +28,7 @@ from kaldiasr.nnet3 import KaldiNNet3OnlineModel, KaldiNNet3OnlineDecoder
 MODELDIR    = 'data/models/kaldi-generic-en-tdnn_sp-latest'
 WAVFILE     = 'data/dw961.wav'
 
-kaldi_model = KaldiNNet3OnlineModel (MODELDIR, acoustic_scale=1.0, beam=7.0, frame_subsampling_factor=3)
+kaldi_model = KaldiNNet3OnlineModel (MODELDIR)
 decoder     = KaldiNNet3OnlineDecoder (kaldi_model)
 
 if decoder.decode_wav_file(WAVFILE):
@@ -36,11 +36,11 @@ if decoder.decode_wav_file(WAVFILE):
     s, l = decoder.get_decoded_string()
 
     print
-    print "*****************************************************************"
-    print "**", WAVFILE
-    print "**", s
-    print "** %s likelihood:" % MODELDIR, l
-    print "*****************************************************************"
+    print u"*****************************************************************"
+    print u"**", WAVFILE
+    print u"**", s
+    print u"** %s likelihood:" % MODELDIR, l
+    print u"*****************************************************************"
     print
 
 else:

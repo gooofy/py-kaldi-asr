@@ -19,6 +19,6 @@ upload:
 	twine upload dist/*
 
 clean:
-	rm -f kaldiasr/nnet3.cpp kaldiasr/nnet3.so kaldiasr/*.pyc MANIFEST
-	rm -rf build dist kaldiasr.egg-info py_kaldi_asr.egg-info
+	rm -f kaldiasr/nnet3.cpp kaldiasr/*.so kaldiasr/*.pyc MANIFEST
+	rm -rf build dist kaldiasr.egg-info py_kaldi_asr.egg-info kaldiasr/__pycache__
 
