@@ -37,10 +37,6 @@ from optparse              import OptionParser
 
 PROC_TITLE                       = 'kaldi_live_demo'
 
-SAMPLE_RATE                      = 16000
-FRAMES_PER_BUFFER                = SAMPLE_RATE * BUFFER_DURATION / 1000
-
-DEFAULT_SOURCE                   = 'CM108'
 DEFAULT_VOLUME                   = 150
 DEFAULT_AGGRESSIVENESS           = 2
 
@@ -57,8 +53,9 @@ STREAM_ID                        = 'mic'
 #
 
 misc.init_app(PROC_TITLE)
+logging.basicConfig(level=logging.INFO)
 
-print "Kaldi live demo V0.2"
+print "Kaldi live demo V0.3"
 
 #
 # cmdline, logging
@@ -75,8 +72,8 @@ parser.add_option ("-m", "--model-dir", dest="model_dir", type = "string", defau
 parser.add_option ("-v", "--verbose", action="store_true", dest="verbose",
                    help="verbose output")
 
-parser.add_option ("-s", "--source", dest="source", type = "string", default=DEFAULT_SOURCE,
-                   help="pulseaudio source, default: %s" % DEFAULT_SOURCE)
+parser.add_option ("-s", "--source", dest="source", type = "string", default=None,
+                   help="pulseaudio source, default: auto-detect")
 
 parser.add_option ("-V", "--volume", dest="volume", type = "int", default=DEFAULT_VOLUME,
                    help="broker port, default: %d" % DEFAULT_VOLUME)
@@ -97,13 +94,13 @@ model_dir      = options.model_dir
 # pulseaudio recorder
 #
 
-rec = PulseRecorder (source, SAMPLE_RATE, volume)
+rec = PulseRecorder (source_name=source, volume=volume)
 
 #
 # VAD
 #
 
-vad = VAD(aggressiveness=aggressiveness, sample_rate=SAMPLE_RATE)
+vad = VAD(aggressiveness=aggressiveness)
 
 #
 # ASR
@@ -120,15 +117,13 @@ asr = ASR(engine = ASR_ENGINE_NNET3, model_dir = model_dir,
 # main
 #
 
-rec.start_recording(FRAMES_PER_BUFFER)
+rec.start_recording()
 
 print "Please speak."
 
 while True:
 
     samples = rec.get_samples()
-
-    # logging.debug("%d samples, %5.2f s" % (len(samples), float(len(samples)) / float(SAMPLE_RATE)))
 
     audio, finalize = vad.process_audio(samples)
 
@@ -137,7 +132,7 @@ while True:
 
     logging.debug ('decoding audio len=%d finalize=%s audio=%s' % (len(audio), repr(finalize), audio[0].__class__))
 
-    user_utt, confidence = asr.decode(SAMPLE_RATE, audio, finalize, stream_id=STREAM_ID)
+    user_utt, confidence = asr.decode(audio, finalize, stream_id=STREAM_ID)
 
     print "\r%s                     " % user_utt,
 
