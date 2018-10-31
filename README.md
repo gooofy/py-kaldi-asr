@@ -1,7 +1,7 @@
 # py-kaldi-asr
 
 Some simple wrappers around kaldi-asr intended to make using kaldi's online nnet3-chain
-decoders as convenient as possible. 
+decoders as convenient as possible. Kaldi's online GMM decoders are also supported.
 
 Target audience are developers who would like to use kaldi-asr as-is for speech
 recognition in their application on GNU/Linux operating systems.
@@ -83,6 +83,15 @@ Cflags: -I${kaldi_root}/src  -I${kaldi_root}/tools/openfst/include
 ```
 
 make sure `kaldi_root` points to wherever your kaldi checkout lives in your filesystem.
+
+ATLAS
+-----
+
+You may need to install ATLAS headers even if you didn't need them to compile Kaldi.
+
+```
+$ sudo apt install libatlas-dev
+```
 
 License
 =======
