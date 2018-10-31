@@ -44,28 +44,16 @@ namespace kaldi {
 
     GmmOnlineDecoderWrapper::GmmOnlineDecoderWrapper(GmmOnlineModelWrapper *aModel) : model(aModel) {
         decoder            = NULL;
-        // silence_weighting  = NULL;
-        // feature_pipeline   = NULL;
         adaptation_state   = NULL;
 
         tot_frames         = 0;
         tot_frames_decoded = 0;
 
-// #if VERBOSE
-//         KALDI_LOG << "alloc: OnlineSilenceWeighting";
-// #endif
-//         silence_weighting = new OnlineSilenceWeighting (model->trans_model, 
-//                                                         model->feature_info->silence_weighting_config,
-//                                                         model->decodable_opts.frame_subsampling_factor);
-        
+       
     }
 
     GmmOnlineDecoderWrapper::~GmmOnlineDecoderWrapper() {
         free_decoder();
-        // if (silence_weighting) {
-        //     delete silence_weighting ;
-        //     silence_weighting = NULL;
-        // }
     }
 
     void GmmOnlineDecoderWrapper::start_decoding(void) {
@@ -77,10 +65,6 @@ namespace kaldi {
         KALDI_LOG << "lattice_beam:" << model->decode_config.faster_decoder_opts.lattice_beam;
 #endif
         free_decoder();
-// #if VERBOSE
-//         KALDI_LOG << "alloc: OnlineFeaturePipeline";
-// #endif
-//         feature_pipeline  = new OnlineFeaturePipeline (*model->feature_info);
 #if VERBOSE
         KALDI_LOG << "alloc: OnlineGmmAdaptationState";
 #endif
@@ -110,10 +94,6 @@ namespace kaldi {
             delete adaptation_state; 
             adaptation_state = NULL;
         }
-        // if (feature_pipeline) {
-        //     delete feature_pipeline ; 
-        //     feature_pipeline = NULL;
-        // }
     }
 
     void GmmOnlineDecoderWrapper::get_decoded_string(std::string &decoded_string, double &likelihood) {
@@ -236,13 +216,6 @@ namespace kaldi {
             decoder->FeaturePipeline().InputFinished();
         }
 
-        // if (silence_weighting->Active() && feature_pipeline->IvectorFeature() != NULL) {
-        //     silence_weighting->ComputeCurrentTraceback(decoder->Decoder());
-        //     silence_weighting->GetDeltaWeights(feature_pipeline->NumFramesReady(),
-        //                                        &delta_weights);
-        //     feature_pipeline->IvectorFeature()->UpdateFrameWeights(delta_weights);
-        // }
-
         decoder->AdvanceDecoding();
 
         if (finalize) {
@@ -307,7 +280,6 @@ namespace kaldi {
         KALDI_LOG << "model_in_filename:         " << model_in_filename;
         KALDI_LOG << "fst_in_str:                " << fst_in_str;
         KALDI_LOG << "config:                    " << config;
-        // KALDI_LOG << "ie_conf_filename:          " << ie_conf_filename;
         KALDI_LOG << "align_lex_filename:        " << align_lex_filename;
 #else
         // silence kaldi output as well
@@ -320,31 +292,15 @@ namespace kaldi {
         endpoint_config.Register(&po);
         po.ReadConfigFile(config);
 
-        // feature_config.mfcc_config                 = mfcc_config;
-        // feature_config.ivector_extraction_config   = ie_conf_filename;
-        // feature_cmdline_config.mfcc_config              = mfcc_config;
-        // ./matrix-sum scp:data/train/cmvn.scp output
-
         decode_config.faster_decoder_opts.max_active    = max_active;
         decode_config.faster_decoder_opts.min_active    = min_active;
         decode_config.faster_decoder_opts.beam          = beam;
         decode_config.faster_decoder_opts.lattice_beam  = lattice_beam;
-        // decodable_opts.acoustic_scale              = acoustic_scale;
-        // decodable_opts.frame_subsampling_factor    = frame_subsampling_factor;
 
         feature_config = new OnlineFeaturePipelineConfig(feature_cmdline_config);
         feature_pipeline_prototype = new OnlineFeaturePipeline(*this->feature_config);
 
         // load model...
-        // {
-        //     bool binary;
-        //     Input ki(model_in_filename, &binary);
-        //     this->trans_model.Read(ki.Stream(), binary);
-        //     this->am_nnet.Read(ki.Stream(), binary);
-        //     SetBatchnormTestMode(true, &(this->am_nnet.GetNnet()));
-        //     SetDropoutTestMode(true, &(this->am_nnet.GetNnet()));
-        //     nnet3::CollapseModel(nnet3::CollapseModelConfig(), &(this->am_nnet.GetNnet()));
-        // }
         gmm_models = new OnlineGmmDecodingModels(decode_config);
 
         // Input FST is just one FST, not a table of FSTs.

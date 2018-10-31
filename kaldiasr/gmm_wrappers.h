@@ -22,9 +22,6 @@
 // limitations under the License.
 //
 
-// #include "base/kaldi-common.h"
-// #include "util/common-utils.h"
-
 #include "feat/wave-reader.h"
 #include "online2/online-feature-pipeline.h"
 #include "online2/online-gmm-decoding.h"
@@ -59,24 +56,15 @@ namespace kaldi {
 
         fst::SymbolTable                          *word_syms;
 
-        // OnlineNnet2FeaturePipelineConfig           feature_config;
-        // LatticeFasterDecoderConfig                 lattice_faster_decoder_config;   
         OnlineGmmDecodingConfig                     decode_config;
         
-        // OnlineNnet2FeaturePipelineInfo            *feature_info;
         OnlineFeaturePipelineCommandLineConfig      feature_cmdline_config;
         OnlineFeaturePipelineConfig                 *feature_config;
         OnlineFeaturePipeline                       *feature_pipeline_prototype;
         OnlineEndpointConfig                        endpoint_config;
 
-        // nnet3::AmNnetSimple                        am_nnet;
-        // nnet3::NnetSimpleLoopedComputationOptions  decodable_opts;
-
-        // TransitionModel                            trans_model;
         OnlineGmmDecodingModels                     *gmm_models;
-        //fst::VectorFst<fst::StdArc>               *decode_fst;
         fst::Fst<fst::StdArc>                     *decode_fst;
-        // std::string                               *ie_conf_filename;
 
         // word alignment:
         std::vector<std::vector<int32> >           word_alignment_lexicon;
@@ -107,12 +95,8 @@ namespace kaldi {
         GmmOnlineModelWrapper                   *model;
 
         OnlineGmmAdaptationState                *adaptation_state;
-        // OnlineFeaturePipeline                   *feature_pipeline_prototype;
-        // OnlineSilenceWeighting                  *silence_weighting;
-        // nnet3::DecodableNnetSimpleLoopedInfo    *decodable_info;
         SingleUtteranceGmmDecoder               *decoder;
 
-        // std::vector<std::pair<int32, BaseFloat> >  delta_weights;
         int32                                      tot_frames, tot_frames_decoded;
 
         // decoding result:

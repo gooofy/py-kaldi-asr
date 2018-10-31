@@ -121,20 +121,6 @@ cdef class KaldiGmmOnlineModel:
         self.od_conf_f.flush()
         # subprocess.run(f"cat {self.od_conf_f.name}", shell=True)
 
-        # self.ie_conf_f.write((u"--cmvn-config=%s/conf/online_cmvn.conf\n" % self.modeldir).encode('utf8'))
-        # self.ie_conf_f.write((u"--ivector-period=%d\n" % online_ivector_period).encode('utf8'))
-        # self.ie_conf_f.write((u"--splice-config=%s\n" % splice_conf_filename).encode('utf8'))
-        # self.ie_conf_f.write((u"--lda-matrix=%s/extractor/final.mat\n" % self.modeldir).encode('utf8'))
-        # self.ie_conf_f.write((u"--global-cmvn-stats=%s/extractor/global_cmvn.stats\n" % self.modeldir).encode('utf8'))
-        # self.ie_conf_f.write((u"--diag-ubm=%s/extractor/final.dubm\n" % self.modeldir).encode('utf8'))
-        # self.ie_conf_f.write((u"--ivector-extractor=%s/extractor/final.ie\n" % self.modeldir).encode('utf8'))
-        # self.ie_conf_f.write((u"--num-gselect=%d\n" % num_gselect).encode('utf8'))
-        # self.ie_conf_f.write((u"--min-post=%f\n" % min_post).encode('utf8'))
-        # self.ie_conf_f.write((u"--posterior-scale=%f\n" % posterior_scale).encode('utf8'))
-        # self.ie_conf_f.write((u"--max-remembered-frames=1000\n").encode('utf8'))
-        # self.ie_conf_f.write((u"--max-count=%d\n" % max_count).encode('utf8'))
-        # self.ie_conf_f.flush()
-
         #
         # instantiate our C++ wrapper class
         #
