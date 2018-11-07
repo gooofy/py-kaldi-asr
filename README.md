@@ -108,4 +108,5 @@ Author
 
 Guenter Bartsch <guenter@zamia.org>
 Kaldi 5.1 adaptation contributed by mariasmo https://github.com/mariasmo
+Kaldi GMM model support contributed by David Zurow https://github.com/daanzu
 

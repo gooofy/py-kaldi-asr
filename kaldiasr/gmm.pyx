@@ -115,7 +115,9 @@ cdef class KaldiGmmOnlineModel:
         with open(config) as file:
             for line in file:
                 if re.search(r'=.*/.*', line):
-                    self.od_conf_f.write(re.sub(r'=(.*)', lambda m: f"={self.modeldir}/{Path(*Path(m[1]).parts[2:])}", line).encode('utf8'))
+                    # FIXME: uses python 3 f-strings
+                    # self.od_conf_f.write(re.sub(r'=(.*)', lambda m: f"={self.modeldir}/{Path(*Path(m[1]).parts[2:])}", line).encode('utf8'))
+                    self.od_conf_f.write(re.sub(r'=(.*)', lambda m: "=%s/%s" % (self.modeldir, m[1]), line).encode('utf8'))
                 else:
                     self.od_conf_f.write(line.encode('utf8'))
         self.od_conf_f.flush()

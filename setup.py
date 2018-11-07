@@ -107,8 +107,8 @@ cmdclass.update({ 'build_ext': build_ext })
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.4.1',
-    description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain decoders',
+    version              = '0.5.0',
+    description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain and gmm decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
     author_email         = 'guenter@zamia.org',
