@@ -92,8 +92,13 @@ def find_dependencies():
 #          `pkg-config --cflags kaldi-asr` -g
 
 ext_modules += [
-	Extension("kaldiasr.nnet3", 
-			  sources  = [ "kaldiasr/nnet3.pyx", "kaldiasr/nnet3_wrappers.cpp" ],
+    Extension("kaldiasr.nnet3", 
+              sources  = [ "kaldiasr/nnet3.pyx", "kaldiasr/nnet3_wrappers.cpp" ],
+              language = "c++", 
+              extra_compile_args = [ '-Wall', '-pthread', '-std=c++11', '-DKALDI_DOUBLEPRECISION=0', '-Wno-sign-compare', '-Wno-unused-local-typedefs', '-Winit-self', '-DHAVE_EXECINFO_H=1', '-DHAVE_CXXABI_H', '-DHAVE_ATLAS', '-g'  ],
+              **find_dependencies()),
+	Extension("kaldiasr.gmm", 
+			  sources  = [ "kaldiasr/gmm.pyx", "kaldiasr/gmm_wrappers.cpp" ],
 			  language = "c++", 
 			  extra_compile_args = [ '-Wall', '-pthread', '-std=c++11', '-DKALDI_DOUBLEPRECISION=0', '-Wno-sign-compare', '-Wno-unused-local-typedefs', '-Winit-self', '-DHAVE_EXECINFO_H=1', '-DHAVE_CXXABI_H', '-DHAVE_ATLAS', '-g'  ],
 			  **find_dependencies()),
