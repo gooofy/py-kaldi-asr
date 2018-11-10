@@ -25,9 +25,8 @@ import numpy as np
 cimport numpy as cnp
 import struct
 import wave
-import os
+import os, os.path
 import re
-from pathlib import Path
 from tempfile import NamedTemporaryFile
 import subprocess
 from cpython.version cimport PY_MAJOR_VERSION
@@ -55,7 +54,7 @@ cdef extern from "gmm_wrappers.h" namespace "kaldi":
 
     cdef cppclass GmmOnlineModelWrapper:
         GmmOnlineModelWrapper() except +
-        GmmOnlineModelWrapper(float, int, int, float, float, int, string, string, string, string, string) except +
+        GmmOnlineModelWrapper(float, int, int, float, string, string, string, string) except +
 
     cdef cppclass GmmOnlineDecoderWrapper:
         GmmOnlineDecoderWrapper() except +
@@ -69,86 +68,72 @@ cdef extern from "gmm_wrappers.h" namespace "kaldi":
 cdef class KaldiGmmOnlineModel:
 
     cdef GmmOnlineModelWrapper* model_wrapper
-    cdef unicode                  modeldir, graph
-    cdef object                   od_conf_f
+    cdef unicode                model_dir, graph_dir
+    cdef object                 conf_file
 
-    def __cinit__(self, object modeldir, 
-                        object graph,
+    def __cinit__(self, object model_dir, 
+                        object graph_dir,
                         float  beam                     = 7.0, # nnet3: 15.0
                         int    max_active               = 7000,
                         int    min_active               = 200,
-                        float  lattice_beam             = 8.0, 
-                        float  acoustic_scale           = 1.0, # nnet3: 0.1
-                        int    frame_subsampling_factor = 3,   # neet3: 1
+                        float  lattice_beam             = 8.0): 
 
-                        int    num_gselect              = 5,
-                        float  min_post                 = 0.025,
-                        float  posterior_scale          = 0.1,
-                        int    max_count                = 0,
-                        int    online_ivector_period    = 10):
+        self.model_dir = _text(model_dir)
+        self.graph_dir = _text(graph_dir)
 
-        self.modeldir         = _text(modeldir)
-        self.graph            = _text(graph)
-
-        cdef unicode config                = u'%s/conf/online_decoding.conf'             % self.modeldir
-        cdef unicode word_symbol_table     = u'%s/graph/words.txt'                       % self.graph
-        cdef unicode model_in_filename     = u'%s/final.mdl'                             % self.modeldir
-        cdef unicode fst_in_str            = u'%s/graph/HCLG.fst'                        % self.graph
-        cdef unicode align_lex_filename    = u'%s/graph/phones/align_lexicon.int'        % self.graph
+        cdef unicode config                = u'%s/conf/online_decoding.conf'             % self.model_dir
+        cdef unicode word_symbol_table     = u'%s/graph/words.txt'                       % self.graph_dir
+        cdef unicode fst_in_str            = u'%s/graph/HCLG.fst'                        % self.graph_dir
+        cdef unicode align_lex_filename    = u'%s/graph/phones/align_lexicon.int'        % self.graph_dir
 
         #
         # make sure all model files required exist
         #
 
-        for conff in [config, word_symbol_table, model_in_filename, fst_in_str, align_lex_filename]:
-            if not os.path.isfile(conff.encode('utf8')): 
-                raise Exception ('%s not found.' % conff)
-            if not os.access(conff.encode('utf8'), os.R_OK):
-                raise Exception ('%s is not readable' % conff) 
+        for filename in [config, word_symbol_table, fst_in_str, align_lex_filename]:
+            if not os.path.isfile(filename.encode('utf8')): 
+                raise Exception ('%s not found.' % filename)
+            if not os.access(filename.encode('utf8'), os.R_OK):
+                raise Exception ('%s is not readable' % filename) 
 
         #
-        # generate ivector_extractor.conf
+        # generate .conf file from existing one, modifying paths
         #
 
-        self.od_conf_f = NamedTemporaryFile(prefix=u'py_online_decoding_', suffix=u'.conf', delete=True)
-        # print(self.od_conf_f.name)
+        self.conf_file = NamedTemporaryFile(prefix=u'py_online_decoding_', suffix=u'.conf', delete=True)
+        # print(self.conf_file.name)
         with open(config) as file:
             for line in file:
-                if re.search(r'=.*/.*', line):
-                    # FIXME: uses python 3 f-strings
-                    # self.od_conf_f.write(re.sub(r'=(.*)', lambda m: f"={self.modeldir}/{Path(*Path(m[1]).parts[2:])}", line).encode('utf8'))
-                    self.od_conf_f.write(re.sub(r'=(.*)', lambda m: "=%s/%s" % (self.modeldir, m[1]), line).encode('utf8'))
-                else:
-                    self.od_conf_f.write(line.encode('utf8'))
-        self.od_conf_f.flush()
-        # subprocess.run(f"cat {self.od_conf_f.name}", shell=True)
+                # modify any path, then write
+                line = re.sub(r'=(.*/.*)',
+                              lambda match: '=' + os.path.join(self.model_dir, '..', '..', match.group(1)),
+                              line)
+                self.conf_file.write(line.encode('utf8'))
+        self.conf_file.flush()
+        # subprocess.run('cat ' + self.conf_file.name, shell=True)
 
         #
         # instantiate our C++ wrapper class
         #
 
         self.model_wrapper = new GmmOnlineModelWrapper(beam, 
-                                                         max_active, 
-                                                         min_active, 
-                                                         lattice_beam, 
-                                                         acoustic_scale, 
-                                                         frame_subsampling_factor, 
-                                                         word_symbol_table.encode('utf8'), 
-                                                         model_in_filename.encode('utf8'), 
-                                                         fst_in_str.encode('utf8'), 
-                                                         self.od_conf_f.name.encode('utf8'),
-                                                         align_lex_filename.encode('utf8'))
+                                                       max_active,
+                                                       min_active,
+                                                       lattice_beam,
+                                                       word_symbol_table.encode('utf8'),
+                                                       fst_in_str.encode('utf8'),
+                                                       self.conf_file.name.encode('utf8'),
+                                                       align_lex_filename.encode('utf8'))
 
     def __dealloc__(self):
-        if self.od_conf_f:
-            self.od_conf_f.close()
+        if self.conf_file:
+            self.conf_file.close()
         if self.model_wrapper:
             del self.model_wrapper
 
 cdef class KaldiGmmOnlineDecoder:
 
     cdef GmmOnlineDecoderWrapper* decoder_wrapper
-    cdef object                     ie_conf_f
 
     def __cinit__(self, KaldiGmmOnlineModel model):
 

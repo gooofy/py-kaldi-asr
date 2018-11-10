@@ -257,16 +257,13 @@ namespace kaldi {
     }
 
     GmmOnlineModelWrapper::GmmOnlineModelWrapper(BaseFloat    beam,                       
-                                                     int32        max_active,
-                                                     int32        min_active,
-                                                     BaseFloat    lattice_beam,
-                                                     BaseFloat    acoustic_scale, 
-                                                     int32        frame_subsampling_factor,
-                                                     std::string &word_syms_filename, 
-                                                     std::string &model_in_filename,
-                                                     std::string &fst_in_str,
-                                                     std::string &config,
-                                                     std::string &align_lex_filename)
+                                                 int32        max_active,
+                                                 int32        min_active,
+                                                 BaseFloat    lattice_beam,
+                                                 std::string &word_syms_filename, 
+                                                 std::string &fst_in_str,
+                                                 std::string &config,
+                                                 std::string &align_lex_filename)
 
     {
 
@@ -277,7 +274,6 @@ namespace kaldi {
         typedef kaldi::int64 int64;
     
 #if VERBOSE
-        KALDI_LOG << "model_in_filename:         " << model_in_filename;
         KALDI_LOG << "fst_in_str:                " << fst_in_str;
         KALDI_LOG << "config:                    " << config;
         KALDI_LOG << "align_lex_filename:        " << align_lex_filename;
