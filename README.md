@@ -106,7 +106,6 @@ copyright headers inside for more information.
 Author
 ======
 
-Guenter Bartsch <guenter@zamia.org>
-Kaldi 5.1 adaptation contributed by mariasmo https://github.com/mariasmo
-Kaldi GMM model support contributed by David Zurow https://github.com/daanzu
-
+Guenter Bartsch <guenter@zamia.org><br/>
+Kaldi 5.1 adaptation contributed by mariasmo https://github.com/mariasmo<br/>
+Kaldi GMM model support contributed by David Zurow https://github.com/daanzu<br/>

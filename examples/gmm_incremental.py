@@ -130,7 +130,13 @@ for i in range(NUM_DECODER_RUNS):
     print("**", WAVFILE)
     print("**", s)
     print("** %s likelihood:" % MODELDIR, l)
+
+    time_scale = 0.01
+    words, times, lengths = decoder.get_word_alignment()
+    print("** word alignment: :")
+    for i, word in enumerate(words):
+        print('**   %f\t%f\t%s' % (time_scale * float(times[i]), time_scale*float(times[i] + lengths[i]), word))
+
     print("*****************************************************************")
     print()
     print("%s decoding took %8.2fs" % (MODELDIR, time() - time_start ))
-
