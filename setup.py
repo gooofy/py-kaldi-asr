@@ -107,7 +107,7 @@ cmdclass.update({ 'build_ext': build_ext })
 
 setup(
     name                 = 'py-kaldi-asr',
-    version              = '0.5.0',
+    version              = '0.5.1',
     description          = 'Simple Python/Cython interface to kaldi-asr nnet3/chain and gmm decoders',
     long_description     = open('README.md').read(),
     author               = 'Guenter Bartsch',
@@ -135,5 +135,6 @@ setup(
     license              = 'Apache',
     keywords             = 'kaldi asr',
     include_package_data = True,
+    install_requires     = ['numpy', 'cython', ],
     )
 
