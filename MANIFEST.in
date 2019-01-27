@@ -2,3 +2,4 @@ include kaldiasr/nnet3_wrappers.h
 include data/dw961.wav
 include data/gso1.wav
 include data/lsen1.wav
+include README.md
