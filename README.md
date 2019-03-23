@@ -69,7 +69,7 @@ install it on a system.
 
 So, for now we will rely on pkg-config to provide LIBS and CFLAGS for compilation:
 Create a file called `kaldi-asr.pc` somewhere in your `PKG_CONFIG_PATH` that provides
-this information:
+this information - here is what such a file could look like (details depend on your OS environment):
 
 ```bash
 kaldi_root=/opt/kaldi
