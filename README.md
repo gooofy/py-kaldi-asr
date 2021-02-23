@@ -53,7 +53,7 @@ Please check the examples directory for more example code.
 Requirements
 ============
 
-* Python 2.7 or 3.5
+* Python 2.7 or 3.5+
 * NumPy
 * Cython
 * [kaldi-asr](http://kaldi-asr.org/ "kaldi-asr.org")
@@ -107,5 +107,6 @@ Author
 ======
 
 Guenter Bartsch <guenter@zamia.org><br/>
-Kaldi 5.1 adaptation contributed by mariasmo https://github.com/mariasmo<br/>
-Kaldi GMM model support contributed by David Zurow https://github.com/daanzu<br/>
+Kaldi 5.1 adaptation contributed by mariasmo https://github.com/mariasmo  
+Kaldi GMM model support contributed by David Zurow https://github.com/daanzu  
+Python > 3.5 support contributed by Jakob Kruse https://github.com/jakob1111996
